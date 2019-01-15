@@ -1,9 +1,14 @@
 # Núcleo de pesquisa - VSAT
 
-Este projeto possui o objetivo principal de ...
+Esta missão possui o objetivo principal de Desenvolver um estudo sobre a aplicação da technologia [LoRa](https://en.wikipedia.org/wiki/LoRa) para a realização de telemetria em nanosatelites de baixo custo. O objetivo principal é validar através de simulações, softwares e pesquisa a transmissão a 35 Km. 
+
+O projeto possui dois módulos principais, **estação base (EB)** e **nanosatelite (NS)**.
+
+![Diagrama visão geral](/images/Usecase.png)
 
 ## Inicialização
 Para iniciar a utilização deste projeto:
+
 1. Instale as ferramentas descritas na sessão *Ferramentas*.
 
 ## Ferramentas
@@ -18,52 +23,63 @@ Para iniciar a utilização deste projeto:
 
 ## Análise técnica
 
-### Descrição do ambiente técnico
-
-O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO.
-
 ### Levantamento de requisitos  
 Os requisitos foram levantados pela equipe VSAT. Este são requisitos especificamente ligados as funcionalidades da missão.
 
 ### Requisitos Funcionais
 Respeitando a proposta, o sistema deverá atender os seguintes requisitos:
 
-* **RF1** - Possuir sensor de temperatura.
-* **RF2** - Possuir sensor de umidade.
+* **RF1** - Sensoreamento de temperatura.
+* **RF2** - Sensoreamento sensor de altitude.
+* **RF3** - Sensoreamento sensor de pressão.
+* **RF4** - Armazenar dados sensoreados.
+* **RF5** - Temporizador para telemetria.
+* **RF6** - Localizador.
+* **RF7** - Telemetria na estação de solo identificanda com aviso sonoro/luminoso.
 
 ## Requisitos Não-Funcionais
 
-* **RNF1** - Utilizar tecnologia *LORA*.
+* **RNF1** - Utilizar tecnologia *LORA 915T30D* para comunicação.
+* **RNF2** - Utilizar *CSV* para armazenamento.
+* **RNF3** - Utilizar módulo *RTC - DS3231* para temporização.
+* **RNF4** - Utilizar módulo *GPS NEO6M*/*Tracker - GF07* para localização.
 
 ## Regras de Negócio
 
-1. **RGN1** - *Tempo de Telemetria*
+1. **RGN1** - *Tempo de armazenamento*
 
-A telemetria será realizada a cada x tempo.   
+O armazenamento será realizado a cada 1 minuto em SDCard através do formato CSV.   
+
+
+2. **RGN2** - *Tempo de telemetria*
+
+A telemetria será realizada a cada x minuto, enviando dados para a **EB**.   
+
+3. **RGN3** - *Formato CSV*
+
+As informações serão armazenadas em formato CSV:
+
+```
+RTC, temperatura, pressão, altitude, localização
+```
 
 ## Casos de Uso
 
 1. **UC1** - *Recepção de informação*
 
-Para verificar as informações recebidas será realizado o seguinte passo-a-passo:
-
+Para verificar as informações recebidas será utilizada a estação base **EB**.
 
 ***Visão do sistema***
 
-***Caso seja criado alguma tela aqui é especificado***
+```
+RTC, temperatura, pressão, altitude, localização
+```
 
 # Implementação técnica
 
 ## Diagrama de casos de Uso
 ![Diagrama de casos de Uso](/images/Usecase.png)
 
-## Diagrama ER de banco de dados
-Vai ter?
-![Diagrama ER de banco de dados](/images/db_pf.png)
-
-## Trocas de mensagem
-Descreve toda a telemetria aqui.
-![Diagrama partes do sistema](/images/)
 
 
 ## Cronograma
