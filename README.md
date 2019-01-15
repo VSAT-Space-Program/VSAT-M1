@@ -2,69 +2,30 @@
 
 Este projeto possui o objetivo principal de ...
 
-## Inicialização
-Para iniciar a utilização deste projeto:
-1. Instale as ferramentas descritas na sessão *Ferramentas*.
+### Patrocinadores
 
-## Ferramentas
-* [IDE Arduino](https://www.arduino.cc/en/main/software) - A IDE arduino será utilizada para o desenvolvimento do projeto.
+* [Link vaquinha](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Descrição bonita vaquinha.
 
-## Links importantes
-* [Make clean code and be happy!](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Um código limpo facilita o trabalho em equipe.
+### Noticias/Mídia
 
-# MISSÃO 1
+* [Link noticia](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Descrição bonita vaquinha.
+
+
+# VSAT - MISSÃO 1
 
 ## Introdução
 
-## Análise técnica
-
-### Descrição do ambiente técnico
+## Ambiente técnico
 
 O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO.
 
-### Levantamento de requisitos  
-Os requisitos foram levantados pela equipe VSAT. Este são requisitos especificamente ligados as funcionalidades da missão.
+### Núcleos VSAT
 
-### Requisitos Funcionais
-Respeitando a proposta, o sistema deverá atender os seguintes requisitos:
-
-* **RF1** - Possuir sensor de temperatura.
-* **RF2** - Possuir sensor de umidade.
-
-## Requisitos Não-Funcionais
-
-* **RNF1** - Utilizar tecnologia *LORA*.
-
-## Regras de Negócio
-
-1. **RGN1** - *Tempo de Telemetria*
-
-A telemetria será realizada a cada x tempo.   
-
-## Casos de Uso
-
-1. **UC1** - *Recepção de informação*
-
-Para verificar as informações recebidas será realizado o seguinte passo-a-passo:
-
-
-***Visão do sistema***
-
-***Caso seja criado alguma tela aqui é especificado***
-
-# Implementação técnica
-
-## Diagrama de casos de Uso
-![Diagrama de casos de Uso](/images/Usecase.png)
-
-## Diagrama ER de banco de dados
-Vai ter?
-![Diagrama ER de banco de dados](/images/db_pf.png)
-
-## Trocas de mensagem
-Descreve toda a telemetria aqui.
-![Diagrama partes do sistema](/images/)
-
+* [Avionica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Avionica) -  Responsável por .
+* [Mecanica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Mecanica) -  Responsável por .
+* [Pesquisa](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Pesquisa) -  Responsável pelo P&D, avalia e desenvolve o software e comunicação.
+* [Recuperacao](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Recuperacao) -  Responsável por .
+* [Testes](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Testes) -  Responsável por .
 
 ## Cronograma
 
@@ -82,5 +43,4 @@ Entrega de yy
 
 INSERIR UMA TABELA AQUI
 
-## Sequencia de testes
 
