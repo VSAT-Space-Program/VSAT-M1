@@ -11,6 +11,11 @@ Para iniciar a utilização deste projeto:
 
 ## Links importantes
 * [Make clean code and be happy!](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Um código limpo facilita o trabalho em equipe.
+* [Monografia 1](https://wiki.sj.ifsc.edu.br/wiki/images/a/a2/TCC_Leonan_Da_Silva_Saraiva.pdf)
+* [Monografia 2](https://wiki.sj.ifsc.edu.br/wiki/index.php/Utiliza%C3%A7%C3%A3o_da_tecnologia_LoRaWAN_para_o_monitoramento_de_dados_ambientais)
+* [Monografia 3](https://wiki.sj.ifsc.edu.br/wiki/index.php/Sensoriamento_Remoto_das_Condi%C3%A7%C3%B5es_Ambientais_de_Colmeias_de_Abelhas_utilizando_RF)
+* [Monografia 4](https://wiki.sj.ifsc.edu.br/wiki/index.php/Utiliza%C3%A7%C3%A3o_da_tecnologia_LoRaWAN_para_o_monitoramento_de_dados_ambientais)
+* [Monografia 5](https://wiki.sj.ifsc.edu.br/wiki/images/a/ad/TCC290_Giulio_Cruz_de_Oliveira.pdf)
 
 # MISSÃO 1
 
