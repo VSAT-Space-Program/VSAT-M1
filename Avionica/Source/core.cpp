@@ -2,7 +2,7 @@
  * core.cpp
  *
  *  Created on: 19 de Jan de 2019
- *      Author: educampos
+ *      Author: Eduardo Lacerda Campos
  */
 
 
@@ -17,9 +17,9 @@
 #include "Usart.h"
 #include "DS3231.h"
 
-//LED PB5. Pino 13 no arduino uno
-//SDA PC4. Pino AD4 no arduino uno
-//SCL PC5. pino AD5 no arduino uno
+//LED PB5. Pino 13 no arduino nano
+//SDA PC4. Pino AD4 no arduino nano
+//SCL PC5. pino AD5 no arduino nano
 
 
 DS3231 rtc;
@@ -55,8 +55,6 @@ void setup() {
 	// initialize serial communication
 	USART.begin(57600);
 	USART.write("Serial is ready");
-
-
 
 	Wire.begin();
 	if(rtc.Initialize(&Wire)==false)
