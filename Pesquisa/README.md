@@ -55,22 +55,15 @@ Para verificar as informações recebidas será realizado o seguinte passo-a-pas
 
 ***Visão do sistema***
 
-***Caso seja criado alguma tela aqui é especificado***
-
 # Implementação técnica
 
-## Diagrama de casos de Uso
-![Diagrama de casos de Uso](/images/Usecase.png)
-
-## Diagrama ER de banco de dados
-Vai ter?
-![Diagrama ER de banco de dados](/images/db_pf.png)
-
 ## Trocas de mensagem
-Descreve toda a telemetria aqui.
-![Diagrama partes do sistema](/images/)
+Poucos agentes em utilização, não gerará diagrama de telemetria. Dados enviados em formato **CSV** em comunicação Half-duplex:
 
-
+    led_state; buzzer_state
+    
+Onde **led_state** indicará o nível lógico que o led será setado e **buzzer_state** indicará o nível lógico que o buzzer será setado.    
+    
 ## Cronograma
 
 ### ETAPA 1 - Documentação
