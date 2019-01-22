@@ -17,9 +17,21 @@
 #include "Usart.h"
 #include "DS3231.h"
 
-//LED PB5. Pino 13 no arduino nano
-//SDA PC4. Pino AD4 no arduino nano
-//SCL PC5. pino AD5 no arduino nano
+/***************************
+Descrição dos pinos utilizados
+Arduino PB5 ---> Led no arduino nano
+Arduino SDA PC4 <--> Comunicação I2C
+Arduino SCL PC5 ---> Comunicação I2C
+Arduino PC0 AD0 <--- Para a leitura do LM35
+Arduino PC1 AD1 <--- Para o inversor de tensão
+Arduino Tx PD0 ---> SX1276 Rx
+Arduino Rx PD1 <--- SX1276 Tx
+Arduino PD2 ---> SX1276 M0 Lora
+Arduino PD3 ---> SX1276 M1 Lora
+Arduino PD4 <--- SX1276 AUX Lora
+****************************/
+
+
 
 
 DS3231 rtc;
