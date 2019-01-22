@@ -1,4 +1,5 @@
 /*
+
   Arduino VSAT Lib
 
   Functions created in this library:
@@ -8,12 +9,17 @@
 
   Created : January 21, 2019
   Author: Leticia Coelho 
+  
 */
 
-#include <vsat.h>
+#include <VSAT.h>
 
-int VSAT::TX_Lora(int data_to_transmit); /* LoraWan Transmiter */
+int VSAT::TX_Lora(int data_to_transmit) /* LoraWan Transmiter */
+{
+  Serial.print("... TX_Lora ...");
+}
        
-int VSAT::RX_Lora(); /* LoraWan Receptor */
-        
-
+int VSAT::RX_Lora() /* LoraWan Receptor */
+{
+  Serial.print("... RX_Lora ...");
+}
