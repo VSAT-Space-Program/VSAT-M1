@@ -41,11 +41,11 @@ public:
 	uint8_t &d=data[4];
 	uint8_t &m=data[5];
 
-	uint8_t Temp;
-	uint8_t Temp_float;
-
 private:
 	TwoWire* Wire;
+
+	uint8_t Temp;
+	uint8_t Temp_float;
 };
 
 
