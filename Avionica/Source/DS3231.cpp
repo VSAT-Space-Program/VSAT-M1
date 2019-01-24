@@ -88,18 +88,18 @@ bool DS3231::Force_Temperature_Update()
 }
 
 bool DS3231::Adjust_Time(const DateTime& dt) {
-  Wire->beginTransmission(DS3231_ADDRESS);
-  Wire->write(DS3231_SECOND_REGISTER);
-  Wire->write(bin2bcd(dt.second()));
-  Wire->write(bin2bcd(dt.minute()));
-  Wire->write(bin2bcd(dt.hour()));
-  Wire->write(bin2bcd(0));
-  Wire->write(bin2bcd(dt.day()));
-  Wire->write(bin2bcd(dt.month()));
-  Wire->write(bin2bcd(dt.year() - 2000));
-  Wire->endTransmission();
+	Wire->beginTransmission(DS3231_ADDRESS);
+	Wire->write(DS3231_SECOND_REGISTER);
+	Wire->write(bin2bcd(dt.second()));
+	Wire->write(bin2bcd(dt.minute()));
+	Wire->write(bin2bcd(dt.hour()));
+	Wire->write(bin2bcd(0));
+	Wire->write(bin2bcd(dt.day()));
+	Wire->write(bin2bcd(dt.month()));
+	Wire->write(bin2bcd(dt.year() - 2000));
+	Wire->endTransmission();
 
-  return true;
+	return true;
 //
 //  uint8_t statreg = read_i2c_register(DS3231_ADDRESS, DS3231_STATUSREG);
 //  statreg &= ~0x80; // flip OSF bit
