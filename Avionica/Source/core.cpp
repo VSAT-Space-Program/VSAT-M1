@@ -18,17 +18,63 @@
 #include "DS3231.h"
 
 /***************************
-Descrição dos pinos utilizados
-Arduino PB5 ---> Led no arduino nano
-Arduino SDA PC4 <--> Comunicação I2C
-Arduino SCL PC5 ---> Comunicação I2C
-Arduino PC0 AD0 <--- Para a leitura do LM35
-Arduino PC1 AD1 <--- Para o inversor de tensão
-Arduino Tx PD0 ---> SX1276 Rx
-Arduino Rx PD1 <--- SX1276 Tx
-Arduino PD2 ---> SX1276 M0 Lora
-Arduino PD3 ---> SX1276 M1 Lora
-Arduino PD4 <--- SX1276 AUX Lora
+Pinout - Arduino 1
+ADC6 <--- Leitura do LM35
+ADC7
+AREF
+PB0
+PB1
+PB2
+PB3
+PB4
+PB5 ---> Led
+PB6 <--- XTAL1
+PB7 <--- XTAL2
+PC0
+PC1
+PC2
+PC3
+PC4 <--> Comunicação I2C Data
+PC5 ---> Comunicação I2C CLK
+PC6
+PD0 ---> SX1276 Rx
+PD1 <--- SX1276 Tx
+PD2 ---> SX1276 M0 Lora
+PD3 ---> SX1276 M1 Lora
+PD4 <--- SX1276 AUX Lora
+PD5
+PD6
+PD7
+
+
+Pinout - Arduino 2
+ADC6
+ADC7
+AREF
+PB0
+PB1
+PB2
+PB3
+PB4
+PB5 ---> Led
+PB6 <--- XTAL1
+PB7 <--- XTAL2
+PC0
+PC1
+PC2
+PC3
+PC4
+PC5
+PC6
+PD0
+PD1
+PD2
+PD3
+PD4
+PD5
+PD6
+PD7
+
 ****************************/
 
 
@@ -36,7 +82,7 @@ Arduino PD4 <--- SX1276 AUX Lora
 
 DS3231 rtc;
 
-
+//TODO - Criar uma rotira de tratamento de falhas.
 void Failure(){
 
 	for(;;)
