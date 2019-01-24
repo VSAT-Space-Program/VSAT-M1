@@ -25,7 +25,7 @@ Para iniciar a utilização deste projeto:
 
 ### Descrição do ambiente técnico
 
-O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO.
+O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO...
 
 ### Levantamento de requisitos  
 Os requisitos foram levantados pela equipe VSAT. Este são requisitos especificamente ligados as funcionalidades da missão.
