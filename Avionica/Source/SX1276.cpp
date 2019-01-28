@@ -81,8 +81,18 @@ bool SX1276::Initialize(Usart* Serial){
 	return true; //successful
 }
 
+
 bool SX1276::Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Lenght){
 
+	Serial->write(Adrress);
+	Serial->write(Channel);
+	//TODO - Criar a função write na USART para lidar com o caso abaixo
+	Serial->write(data,Lenght);
+
+
+}
+
+bool SX1276::Read(uint8_t* data, uint8_t* Lenght){
 
 
 }
