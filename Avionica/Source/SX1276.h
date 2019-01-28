@@ -61,6 +61,7 @@ public:
 	SX1276();
 	virtual ~SX1276();
 	bool Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Lenght);
+	bool Read(uint8_t* data, uint8_t* Lenght);
 
 	bool Initialize(Usart* Serial);
 
