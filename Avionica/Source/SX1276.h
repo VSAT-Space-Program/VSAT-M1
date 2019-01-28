@@ -27,9 +27,6 @@
 #define M1 PD3
 #define AUX PD4
 
-#define ADDH 0x00
-#define ADDL 0x00
-
 //Operating Frequency
 //0x00 to 0x1F corresponding to 900 to 931 MHz
 
@@ -58,15 +55,19 @@
 
 class SX1276 {
 public:
-	SX1276();
+	SX1276(uint16_t Address);
 	virtual ~SX1276();
 	bool Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Lenght);
-	bool Read(uint8_t* data, uint8_t* Lenght);
+	bool Received(uint8_t* data, uint8_t* Lenght);
+	bool Default_Setup(void);
+
 
 	bool Initialize(Usart* Serial);
 
 private:
 	Usart* Serial;
+	uint16_t Address;
+	bool ReadBytes(uint8_t* data, uint8_t Lenght);
 };
 
 #endif /* AVIONICA_SOURCE_SX1276_H_ */
