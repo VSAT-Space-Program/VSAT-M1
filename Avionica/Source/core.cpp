@@ -12,6 +12,7 @@
 
 #include <avr/io.h>
 #include <util/delay.h>
+#include "OV7670.h"
 
 #include <Wire.h>
 #include "Usart.h"
@@ -22,9 +23,9 @@ Pinout - Arduino 1
 ADC6
 ADC7
 AREF
-PB0
-PB1
-PB2
+PB0 ---> Enable Sensors
+PB1 ---> Enable Arduino 2
+PB2 ---> Enable Camera
 PB3
 PB4
 PB5 ---> Led
@@ -51,23 +52,23 @@ Pinout - Arduino 2
 ADC6 <--- Leitura do LM35
 ADC7
 AREF
-PB0
-PB1
+PB0 <--- AL422_DO0
+PB1 <--- AL422_DO1
 PB2 ---> SPI SS
 PB3 ---> SPI MOSI
 PB4 <--- SPI MISO
 PB5 ---> Led + SPI SCK
 PB6 <--- XTAL1
 PB7 <--- XTAL2
-PC0 ---? AL422_WRST
-PC1 ---? AL422_RCK
-PC2 ---? AL422_RRST
-PC3 ---? AL422_WEN
+PC0 ---> AL422_WRST
+PC1 ---> AL422_RCK
+PC2 ---> AL422_RRST
+PC3 ---> AL422_WEN
 PC4 <--> Comunicação I2C Data
 PC5 ---> Comunicação I2C CLK
-PC6 ---? HREF OV7670
-PD0 <--- AL422_DO0
-PD1 <--- AL422_DO1
+PC6
+PD0 ---> NEO6M Rx
+PD1 <--- NEO6M Tx
 PD2 <--- AL422_DO2
 PD3 <--- AL422_DO3
 PD4 <--- AL422_DO4
@@ -75,11 +76,6 @@ PD5 <--- AL422_DO5
 PD6 <--- AL422_DO6
 PD7 <--- AL422_DO7
 
-? <--- VSYNC OV7670
-? <--- PCLC OV7670
-? ---> XCLK OV7670
-? ---> RESET OV7670
-? ---> PWDN OV7670
 
 ****************************/
 
@@ -87,9 +83,10 @@ PD7 <--- AL422_DO7
 
 
 DS3231 rtc;
-SX1276 LoRa;
+OV7670 Can;
+//SX1276 LoRa;
 
-//TODO - Criar uma rotira de tratamento de falhas.
+//TODO - Criar uma rotina de tratamento de falhas.
 void Failure(){
 
 	for(;;)
@@ -113,23 +110,33 @@ void setup() {
 
 	// initialize the digital pin as an output.
 	// Pin 13 has an LED connected on most Arduino boards:
-	DDRB=(1<<PB5);
+	DDRB   = (1<<PB5);
 	PORTB &= ~(1<<PB5);
+
 
 
 	// initialize serial communication
 	USART.begin(9600);
-	USART.write("Serial is ready");
+	USART.write("Serial is ready\r\n");
+
+	//LoRa.Initialize(&USART);
 
 	Wire.begin();
 	if(rtc.Initialize(&Wire)==false)
 	{
 		Failure();
 	}
-	//DateTime rtc_date(2019,1,19,12,03,00);
-	//rtc.Adjust_Time(rtc_date);
+//	DateTime rtc_date(2019,1,19,12,03,00);
+//	rtc.Adjust_Time(rtc_date);
 
-	LoRa.Initialize(&USART);
+
+	if (!Can.Initialize(&Wire))
+	{
+		Failure();
+	}
+
+	USART.write("Can is ready\r\n");
+
 
 }
 
@@ -142,8 +149,6 @@ void loop() {
 	{
 		Failure();
 	}
-
-
 
 	USART.write("\r\n Time: ");
 	USART.write(rtc.d);
@@ -181,7 +186,9 @@ void loop() {
 
 }
 
+void loop2(){
 
+}
 
 int main(void)
 {
@@ -189,6 +196,7 @@ int main(void)
 
 	for (;;)
 		loop();
+//		loop2();
 
 	return 0;
 }
