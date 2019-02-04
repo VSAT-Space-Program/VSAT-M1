@@ -43,7 +43,7 @@ private:
 	uint8_t camera_mode;
 	bool init_camera_reset();
 	uint8_t transfer_regvals(struct regval_list *list);
-	uint8_t Send_I2C(uint8_t slave_address, uint8_t address, uint8_t data);
+	uint8_t Send_SCCB(uint8_t slave_address, uint8_t address, uint8_t data);
 	bool reset(uint8_t mode);
 };
 

@@ -29,15 +29,13 @@ bool OV7670::Initialize(TwoWire* Wire){
 	DDRD &= 0b00000011;
 
 	//Control Pins, Define as Output
-	CONTROL_DDR = AL422_RCK | AL422_WEN | AL422_RRST | AL422_WRST;
+	CONTROL_DDR |= AL422_RCK | AL422_WEN | AL422_RRST | AL422_WRST;
 
 	//Set the initial value
 	CONTROL_PORT = AL422_RRST | AL422_WRST;
 	CONTROL_PORT &= ~(AL422_WEN);
 
 	return reset(MODE_YUV);
-
-
 
 
 }
@@ -50,7 +48,8 @@ bool OV7670::reset(uint8_t mode) {
 
 	camera_mode = mode;
 
-	init_camera_reset();
+	if (!init_camera_reset())
+		return false;// something fails
 
 //	switch (camera_mode) {
 //	case MODE_RGB444:
@@ -78,10 +77,11 @@ bool OV7670::reset(uint8_t mode) {
 	return true;
 }
 
-
+//Reset All Register Values
 bool OV7670::init_camera_reset() {
 
-	uint8_t ret=Send_I2C(OV7670_I2C_ADDR, REG_COM7, COM7_RESET);
+	uint8_t ret=Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_RESET);
+
 	if(ret!=0)
 		return false;
 
@@ -108,7 +108,7 @@ uint8_t OV7670::transfer_regvals(struct regval_list *list) {
 		}
 
 		//Send SCCB
-		ret=Send_I2C(OV7670_I2C_ADDR, list[i].reg_num, list[i].value);
+		ret=Send_SCCB(OV7670_I2C_ADDR, list[i].reg_num, list[i].value);
 		if(ret!=0)
 			return false;
 
@@ -131,12 +131,13 @@ uint8_t OV7670::transfer_regvals(struct regval_list *list) {
 *          3 .. data send, NACK received
 *          4 .. other twi error (lost bus arbitration, bus error, ..)
 **************************************************************************/
-uint8_t OV7670::Send_I2C(uint8_t slave_address, uint8_t address, uint8_t data) {
+uint8_t OV7670::Send_SCCB(uint8_t slave_address, uint8_t address, uint8_t data) {
 
-	Wire->beginTransmission(slave_address);
+	//To make SCCB compatible with the I2C protocol, the address should be right shifted to compensate the left shift
+	Wire->beginTransmission(slave_address>>1);
 	Wire->write(address);
 	Wire->write(data);
-	return Wire->endTransmission();
+	return Wire->endTransmission(true);
 
 }
 
