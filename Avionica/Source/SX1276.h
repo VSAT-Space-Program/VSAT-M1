@@ -32,6 +32,8 @@
 
 #define CHAN 0x0F  //Default 915 MHz
 
+#define MAX_TX_SIZE 58
+
 //Air data rate
 #define AIR_BPS_300 	0x00
 #define AIR_BPS_1200 	0x01
@@ -58,7 +60,7 @@ public:
 	SX1276(uint16_t Address);
 	virtual ~SX1276();
 	bool Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Lenght);
-	bool Received(uint8_t* data, uint8_t* Lenght);
+	uint8_t Received(uint8_t* data, uint8_t Lenght);
 	bool Default_Setup(void);
 
 

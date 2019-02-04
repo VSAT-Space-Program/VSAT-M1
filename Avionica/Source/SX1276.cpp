@@ -101,15 +101,27 @@ bool SX1276::Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Leng
 
 	Serial->write(Adrress);
 	Serial->write(Channel);
-	//TODO - Criar a função write na USART para lidar com o caso abaixo
-	//Serial->write(data,Lenght);
+	Serial->writeBytes(data,Lenght);
 
 	return true;
 }
 
-bool SX1276::Received(uint8_t* data, uint8_t* Lenght){
+uint8_t SX1276::Received(uint8_t* data, uint8_t Lenght){
 
-//TODO - Saulo, seu código vai aqui!!!!
+	if (Serial == NULL)
+	  	//Serial port has not been initialized
+			return false;
+
+		char buf[MAX_TX_SIZE];
+		int cnt = 0;
+		if (AUX == 0)
+		{
+			 do {
+			 buf[cnt++] = Serial->read();
+		 } while (Serial->available() < Lenght && cnt < MAX_TX_SIZE);
+		}
+
+	return (buf, cnt); //successful
 
 }
 
