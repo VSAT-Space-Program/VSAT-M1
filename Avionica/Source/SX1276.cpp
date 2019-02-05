@@ -106,23 +106,33 @@ bool SX1276::Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Leng
 	return true;
 }
 
-uint8_t SX1276::Received(uint8_t* data, uint8_t Lenght){
+bool SX1276::Received(uint8_t* data, uint8_t* Lenght){
 
 	if (Serial == NULL)
 	  	//Serial port has not been initialized
-			return false;
+		return false;
 
-		char buf[MAX_TX_SIZE];
-		int cnt = 0;
-		if (AUX == 0)
-		{
-			 do {
-			 buf[cnt++] = Serial->read();
-		 } while (Serial->available() < Lenght && cnt < MAX_TX_SIZE);
-		}
+//		char buf[MAX_TX_SIZE];
+//		int cnt = 0;
+//		if (AUX == 0)
+//		{
+//			 do {
+//			 buf[cnt++] = Serial->read();
+//		 } while (Serial->available() < Lenght && cnt < MAX_TX_SIZE);
+//		}
 
-	return (buf, cnt); //successful
+//	return (buf, cnt); //successful
 
+	//TODO - Conferir qual o nível lógico para representar o fim da comunicação
+	//TODO - incluir timer para evitar loop infinito ou usar interrupção
+	while(AUX_IS_HIGH);
+
+	*Lenght = Serial->available();
+
+	//TODO - incluir um teste para saber se a leitura foi OK
+	ReadBytes(data, *Lenght);
+
+	return true;
 }
 
 
