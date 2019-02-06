@@ -1,46 +1,44 @@
 # VSAT Space Program
 
-Este projeto possui o objetivo principal de ...
+A VSAT Space Program tem o objetivo de desenvolver o sentimento dos mais jovens e dos mais velhos a acreditarem que o Brasil também pode chegar lá em cima, e não somente viver do passado mas sim escrever o futuro!
+
+Atualmente a equipe é composta por 23 integrantes altamente capacitados em diversas áreas da engenharia (Aeroespacial, Elétrica, Mecânica, Telecomunicações e Química). 
+
+Os objetivos principais da VSAT Space Program são:
+
+
+- A realização de cursos voltados para a área aeroespacial;
+
+- Desenvolvimento de tecnologia aeroespacial para capacitação de outras equipes;
+
+- Realização de workshops para disseminação da ciência aeroespacial no país;
+
+- Desenvolvimento de CubeSats para diversos tipos de missões;
+
+- Desenvolvimento do 1º foguete de combustível liquido reutilizável do país.
+
 
 ### Patrocinadores
 
-* [Link vaquinha](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Descrição bonita vaquinha.
+Com seu apoio poderemos checar aos nossos objetivos!
+Podemos contar com você?
 
-### Noticias/Mídia
+* [apoia.se](https://apoia.se/vsatspaceprogram).
+* [vakinha](https://www.vakinha.com.br/vaquinha/vsat-space-program-seu-nome-no-espaco-projeto-cubesat)
 
-* [Link noticia](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Descrição bonita vaquinha.
+### Mídias Sociais
 
-
-# VSAT - MISSÃO 1
-
-## Introdução
-
-## Ambiente técnico
-
-O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO.
+* [VSAT Facebook](https://www.facebook.com/vsatspaceprogram/).
+* @vsatspaceprog
+* [Spotify](https://lnkd.in/eaR_4qe)
 
 ### Núcleos VSAT
 
-* [Avionica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Avionica) -  Responsável por .
-* [Mecanica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Mecanica) -  Responsável por .
-* [Pesquisa](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Pesquisa) -  Responsável pelo P&D, avalia e desenvolve o software e comunicação.
-* [Recuperacao](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Recuperacao) -  Responsável por .
-* [Testes](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Testes) -  Responsável por .
+* [Avionica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Avionica)
+* [Mecanica](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Mecanica)
+* [Pesquisa](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Pesquisa) 
+* [Recuperacao](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Recuperacao)
+* [Testes](https://github.com/VSAT-Space-Program/VSAT-M1/blob/master/Testes)
 
-## Cronograma
-
-### ETAPA 1 - Documentação
-Entrega da documentação de projeto.
-**DATA:**
-
-### ETAPA 2 - xx
-Entrega de xx
-**DATA:**
-
-### ETAPA 3 - yy
-Entrega de yy
-**DATA:**
-
-INSERIR UMA TABELA AQUI
 
 

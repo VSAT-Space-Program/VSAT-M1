@@ -56,19 +56,6 @@
 //UART parity bit
 #define P_8N1 0x00
 
-//MACROS
-#define WHILE_COUNT(__X)									\
-	{														\
-		uint16_t __Counter=0;								\
-		while(__X)											\
-		{													\
-			_delay_ms(1);									\
-			__Counter++;									\
-			if (__Counter>=1000)							\
-				return false; 								\
-		}													\
-	}
-
 class SX1276 {
 public:
 	SX1276(uint16_t Address);

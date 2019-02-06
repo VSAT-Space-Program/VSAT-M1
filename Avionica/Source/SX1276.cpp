@@ -17,14 +17,14 @@ static void Sleep() {PORTD |= (1<<M0) | (1<<M1);}
 * Address -> Module Address
 ************************************************************************/
 SX1276::SX1276(uint16_t Address) {
-
+	// TODO Auto-generated constructor stub
 	this->Address = Address;
 	Serial = NULL;
 
 }
 
 SX1276::~SX1276() {
-
+	// TODO Auto-generated destructor stub
 }
 
 bool SX1276::Initialize(Usart* Serial){
@@ -33,26 +33,6 @@ bool SX1276::Initialize(Usart* Serial){
 	this->Serial = Serial;
 
 	DDRD |= (1<<M0) | (1<<M1); //Set M0 and M1 port as output
-
-	/*
-	 * When the module is powered on, AUX outputs low level immediately, conducts hardware self-check and sets the operating mode on
-	 * the basis of the user parameters. During the process, the AUX keeps low level. After the process completed, the AUX outputs high
-	 * level and starts to work as per the operating mode combined by M1 and M0. Therefore, the user needs to wait the AUX rising edge
-	 * as the starting point of module’s normal work.
-	 */
-
-	{
-		uint16_t Counter=0;
-		//wait the module wake Up (Aux == 1)
-		while(!AUX_IS_HIGH)
-		{
-			_delay_ms(1);
-			//avoid infinite loop, the "Counter" was introduced.
-			Counter++;
-			if (Counter>=1000)// considering the _delay_ms, this counter will wait 1s
-				return false; //fail to start the module
-		}
-	}
 
 	//Put the device in sleep mode to configure it.
 	Sleep();
@@ -87,7 +67,6 @@ bool SX1276::Initialize(Usart* Serial){
 		aux = aux & (msg[idx] == output[idx]);
 	}
 
-	// if aux==false there is something wrong with the LoRa module configuration
 	if(aux==false)
 	{
 		//Fail to write or read the configurations
@@ -99,17 +78,15 @@ bool SX1276::Initialize(Usart* Serial){
 
 	_delay_ms(1000);
 
+	uint16_t Counter=0;
+	//wait the module wake Up (Aux == 1)
+	while((PIND & (1<<AUX))==0)
 	{
-		uint16_t Counter=0;
-		//wait the module wake Up (Aux == 1)
-		while(!AUX_IS_HIGH)
-		{
-			_delay_ms(1);
-			//avoid infinite loop, the "Counter" was introduced.
-			Counter++;
-			if (Counter>=1000)// considering the _delay_ms, this counter will wait 1s
-				return false; //fail to start the module
-		}
+		_delay_ms(1);
+		//avoid infinite loop, the "Counter" was introduced.
+		Counter++;
+		if (Counter>=1000)// considering the _delay_ms, this counter will wait 1s
+			return false; //fail to start the module
 	}
 
 
@@ -135,9 +112,20 @@ bool SX1276::Received(uint8_t* data, uint8_t* Lenght){
 	  	//Serial port has not been initialized
 		return false;
 
+//		char buf[MAX_TX_SIZE];
+//		int cnt = 0;
+//		if (AUX == 0)
+//		{
+//			 do {
+//			 buf[cnt++] = Serial->read();
+//		 } while (Serial->available() < Lenght && cnt < MAX_TX_SIZE);
+//		}
+
+//	return (buf, cnt); //successful
+
+	//TODO - Conferir qual o nível lógico para representar o fim da comunicação
 	//TODO - incluir timer para evitar loop infinito ou usar interrupção
-	//O nível lógico alto indica que os dados foram enviados
-	while(!AUX_IS_HIGH);
+	while(AUX_IS_HIGH);
 
 	*Lenght = Serial->available();
 
