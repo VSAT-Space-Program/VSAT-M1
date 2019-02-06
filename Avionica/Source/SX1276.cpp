@@ -167,4 +167,3 @@ bool SX1276::ReadBytes(uint8_t* data, uint8_t Lenght){
 bool SX1276::Default_Setup(void){
 
 }
-
