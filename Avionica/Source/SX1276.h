@@ -2,7 +2,7 @@
  * SX1276.h
  *
  *  Created on: 20 de jan de 2019
- *      Author: Eduardo Lacerda Campos
+ *      Authors: Eduardo Lacerda Campos e Saulo Aislan da Silva Eleutério
  *
  *  Driver para acessar a comunicação LoRa por meio do CI SX1276
  *
