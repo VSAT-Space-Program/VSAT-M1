@@ -23,6 +23,10 @@ bool DS3231::Initialize(TwoWire* Wire)
 {
 	this->Wire = Wire;
 
+	//TODO - Enable Oscillator
+
+
+
 	return true;
 }
 
@@ -88,6 +92,7 @@ bool DS3231::Force_Temperature_Update()
 }
 
 bool DS3231::Adjust_Time(const DateTime& dt) {
+
 	Wire->beginTransmission(DS3231_ADDRESS);
 	Wire->write(DS3231_SECOND_REGISTER);
 	Wire->write(bin2bcd(dt.second()));
