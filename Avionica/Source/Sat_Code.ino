@@ -2,7 +2,7 @@
  * core.cpp
  *
  *  Created on: 19 de Jan de 2019
- *      Author: Eduardo Lacerda Campos
+ *      Authors: Eduardo Lacerda Campos e Saulo Aislan da Silva Eleutério
  */
 
 
@@ -91,7 +91,7 @@ void setup() {
 
 
 void loop() {
-  char data[MAX_TX_SIZE] = {1};
+  uint8_t data[MAX_TX_SIZE] = {0xAA};
 
   LoRa.Send(2, CHAN, data, MAX_TX_SIZE);
 
