@@ -2,7 +2,7 @@
  * core.cpp
  *
  *  Created on: 19 de Jan de 2019
- *      Author: Eduardo Lacerda Campos
+ *      Authors: Eduardo Lacerda Campos e Saulo Aislan da Silva Eleutério
  */
 
 
@@ -83,7 +83,6 @@ void setup() {
   DDRB=(1<<PB5);
   PORTB &= ~(1<<PB5);
 
-
   // initialize serial communication
   USART.begin(9600);
   USART.write("Serial is ready");
@@ -94,37 +93,14 @@ void setup() {
 
 
 void loop() {
-  char data[MAX_TX_SIZE];
+  uint8_t data[1];
 
-  USART.write("\r\n Dados Recebidos: ");
-  USART.write(LoRa.Received(data, MAX_TX_SIZE));
+  LoRa.Received(data, 1);
   
-  _delay_ms(1000);
-  
-  // problema if (USART.available()){
-  // le o byte recebido
-  char received = USART.read();
-  USART.write(received);
-
-  // se o byte recebido corresponde ao caractere '1'(49) acende o LED
-  if (received == '1'){
-    digitalWrite(LED_BUILTIN, HIGH);
+  if (data[0] == 0xAA){
+	PORTB &= ~(1<<PB5);
+	_delay_ms(200);
+	PORTB |= ~(1<<PB5);
   }
   
-  // se o byte recebido for diferente de '1'(49) apaga o LED
-  if (received != '1'){
-    digitalWrite(LED_BUILTIN, LOW);
-  }
-  
-//  if Lora.Read(data,len)
-//    {
-//    if (data == Hand_shake)
-//      Led 1 on Led off
-//      Buzzer
-//    if (data == PosiÃ§Ã£o)
-//      Led 2 on ... off
-//
-//    }
-
-
 }
