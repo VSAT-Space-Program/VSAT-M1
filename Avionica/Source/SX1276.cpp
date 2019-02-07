@@ -60,7 +60,8 @@ bool SX1276::Initialize(Usart* Serial){
 	 * as the starting point of module’s normal work.
 	 */
 
-	WaitAUX_H();
+	if(!WaitAUX_H())
+		return false;
 
 	//Put the device in sleep mode to configure it.
 	Sleep();
@@ -97,7 +98,8 @@ bool SX1276::Initialize(Usart* Serial){
 
 	_delay_ms(1000);
 
-	WaitAUX_H();
+	if(!WaitAUX_H())
+		return false;
 
 	return true; //successful
 }
