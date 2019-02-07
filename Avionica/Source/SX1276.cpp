@@ -87,7 +87,8 @@ bool SX1276::Initialize(Usart* Serial){
 
 	//read the module configuration
 	uint8_t output[6];
-	ReadBytes(output,6);
+	if (!ReadBytes(output,6))
+		return false;
 
 	//Verify if the LoRa module has the right configuration
 	if (memcmp(msg, output, 6)!=0)
@@ -123,12 +124,13 @@ bool SX1276::Received(uint8_t* data, uint8_t* Lenght){
 	  	//Serial port has not been initialized
 		return false;
 
+	//Aguarda 1 segundo para receber todos os bytes
 	WaitAUX_H();
 
 	*Lenght = Serial->available();
 
-	//TODO - incluir um teste para saber se a leitura foi OK
-	ReadBytes(data, *Lenght);
+	if(!ReadBytes(data, *Lenght))
+		return false;
 
 	return true;
 }
@@ -144,7 +146,7 @@ bool SX1276::ReadBytes(uint8_t* data, uint8_t Lenght){
 
 	while(Serial->available()<Lenght){
 		_delay_ms(1);
-		//avoid infinite loop, the "Counter" was introduced.
+		//to avoid infinite loop, the "Counter" was introduced.
 		cnt++;
 		if (cnt>=1000)// considering the _delay_ms, this counter will wait 1s
 		  return false; //fail to Serial available
