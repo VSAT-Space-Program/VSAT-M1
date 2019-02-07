@@ -2,7 +2,7 @@
  * SX1276.cpp
  *
  *  Created on: 20 de jan de 2019
- *      Author: educampos
+ *      Authors: educampos e Saulo Aislan da Silva Eleutério
  */
 
 #include "SX1276.h"
@@ -28,6 +28,24 @@ SX1276::~SX1276() {
 
 }
 
+
+bool WaitAUX_H(){
+
+  uint16_t cnt = 0;
+
+  while(!AUX_IS_HIGH)
+  {
+	  _delay_ms(1);
+	  //avoid infinite loop, the "Counter" was introduced.
+	  cnt++;
+	  if (cnt>=1000)// considering the _delay_ms, this counter will wait 1s
+		  return false; //fail to AUX HIGH
+  }
+
+  return true; //successful
+
+}
+
 bool SX1276::Initialize(Usart* Serial){
 
 	//Attach the serial port
@@ -42,18 +60,7 @@ bool SX1276::Initialize(Usart* Serial){
 	 * as the starting point of module’s normal work.
 	 */
 
-	{
-		uint16_t Counter=0;
-		//wait the module wake Up (Aux == 1)
-		while(!AUX_IS_HIGH)
-		{
-			_delay_ms(1);
-			//avoid infinite loop, the "Counter" was introduced.
-			Counter++;
-			if (Counter>=1000)// considering the _delay_ms, this counter will wait 1s
-				return false; //fail to start the module
-		}
-	}
+	WaitAUX_H();
 
 	//Put the device in sleep mode to configure it.
 	Sleep();
@@ -90,19 +97,7 @@ bool SX1276::Initialize(Usart* Serial){
 
 	_delay_ms(1000);
 
-	{
-		uint16_t Counter=0;
-		//wait the module wake Up (Aux == 1)
-		while(!AUX_IS_HIGH)
-		{
-			_delay_ms(1);
-			//avoid infinite loop, the "Counter" was introduced.
-			Counter++;
-			if (Counter>=1000)// considering the _delay_ms, this counter will wait 1s
-				return false; //fail to start the module
-		}
-	}
-
+	WaitAUX_H();
 
 	return true; //successful
 }
@@ -126,9 +121,7 @@ bool SX1276::Received(uint8_t* data, uint8_t* Lenght){
 	  	//Serial port has not been initialized
 		return false;
 
-	//TODO - incluir timer para evitar loop infinito ou usar interrupção
-	//O nível lógico alto indica que os dados foram enviados
-	while(!AUX_IS_HIGH);
+	WaitAUX_H();
 
 	*Lenght = Serial->available();
 
@@ -145,8 +138,15 @@ bool SX1276::ReadBytes(uint8_t* data, uint8_t Lenght){
 		//Serial port has not been initialized
 		return false;
 
-	//TODO - Para evitar loop infinito. Adicionar um contador
-	while(Serial->available()<Lenght);
+	uint16_t cnt = 0;
+
+	while(Serial->available()<Lenght){
+		_delay_ms(1);
+		//avoid infinite loop, the "Counter" was introduced.
+		cnt++;
+		if (cnt>=1000)// considering the _delay_ms, this counter will wait 1s
+		  return false; //fail to Serial available
+	}
 
 	for(uint8_t idx=0 ; idx<Lenght ; idx++)
 		data[idx]=Serial->read();
