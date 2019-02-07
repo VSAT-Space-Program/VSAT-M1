@@ -6,6 +6,7 @@
  */
 
 #include "SX1276.h"
+#include "string.h"
 
 static void Normal() {PORTD &= ~ ((1<<M0) | (1<<M1));}
 static void WakeUp() {PORTD &= ~(1<<M0);  PORTD |= (1<<M1);}
@@ -81,18 +82,8 @@ bool SX1276::Initialize(Usart* Serial){
 	ReadBytes(output,6);
 
 	//Verify if the LoRa module has the right configuration
-	bool aux= true;
-	for(uint8_t idx=0;idx<sizeof(msg);idx++)
-	{
-		aux = aux & (msg[idx] == output[idx]);
-	}
-
-	// if aux==false there is something wrong with the LoRa module configuration
-	if(aux==false)
-	{
-		//Fail to write or read the configurations
-		return false;
-	}
+	if (memcmp(msg, output, 6)!=0)
+		return false;//Fail to write or read the configurations
 
 	//Wake up the module
 	Normal();
