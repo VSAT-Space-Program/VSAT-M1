@@ -11,7 +11,8 @@ static uint8_t bcd2bin (uint8_t val) { return val - 6 * (val >> 4); }
 static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 
 DS3231::DS3231() {
-	// TODO Auto-generated constructor stub
+
+	this->Wire = NULL;
 
 }
 
@@ -25,12 +26,13 @@ bool DS3231::Initialize(TwoWire* Wire)
 
 	//TODO - Enable Oscillator
 
-
-
 	return true;
 }
 
 bool DS3231::Read(){
+
+	if (Wire==NULL)
+		return false;
 
 	Wire->beginTransmission(DS3231_ADDRESS);
 	Wire->write(DS3231_SECOND_REGISTER); //registro inicial
@@ -56,6 +58,9 @@ bool DS3231::Read(){
 
 bool DS3231::Read_Temperature(){
 
+	if (Wire==NULL)
+		return false;
+
 	Wire->beginTransmission(DS3231_ADDRESS);
 	Wire->write(DS3231_TEMPERATURE_REGISTER_HIGH_BYTE); //registro inicial
 	Wire->endTransmission();
@@ -79,6 +84,9 @@ double DS3231::Get_Temperature()
 bool DS3231::Force_Temperature_Update()
 {
 
+	if (Wire==NULL)
+		return false;
+
 	Wire->beginTransmission(DS3231_ADDRESS);
 	Wire->write(DS3231_CONTROL);
 	Wire->write(CONV_TEMPERATURE_FORCE_BIT);
@@ -92,6 +100,9 @@ bool DS3231::Force_Temperature_Update()
 }
 
 bool DS3231::Adjust_Time(const DateTime& dt) {
+
+	if (Wire==NULL)
+		return false;
 
 	Wire->beginTransmission(DS3231_ADDRESS);
 	Wire->write(DS3231_SECOND_REGISTER);
