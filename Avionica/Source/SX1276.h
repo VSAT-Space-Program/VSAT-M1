@@ -26,7 +26,7 @@
 #define M0 PD2
 #define M1 PD3
 #define AUX PD4
-#define AUX_IS_HIGH (PORTD & (1<<AUX))
+#define AUX_IS_HIGH (PIND & (1<<AUX))
 
 //Operating Frequency
 //0x00 to 0x1F corresponding to 900 to 931 MHz
