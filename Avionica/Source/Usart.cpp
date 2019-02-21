@@ -338,21 +338,32 @@ uint8_t Usart::read( bool removeReadByte) {
   if ( this->rxLength == 0) {
     return 0;
   }
-  if ( removeReadByte) {
-    data = *(this->rxDataStart);
-    this->rxDataStart++;
-    if ( this->rxDataStart == this->rxBuffEnd) {
-      this->rxDataStart = this->rxBuffStart;
-    }
-    this->rxLength--;
-  } else {
-    data = *(this->rxDataTStart);
-    this->rxDataTStart++;
-    if ( this->rxDataTStart == this->rxBuffEnd) {
-      this->rxDataTStart = this->rxBuffStart;
-    }
-  }
-  return data;
+//  if ( removeReadByte) {
+//    data = *(this->rxDataStart);
+//    this->rxDataStart++;
+//    if ( this->rxDataStart == this->rxBuffEnd) {
+//      this->rxDataStart = this->rxBuffStart;
+//    }
+//    this->rxLength--;
+//  } else {
+//    data = *(this->rxDataTStart);
+//    this->rxDataTStart++;
+//    if ( this->rxDataTStart == this->rxBuffEnd) {
+//      this->rxDataTStart = this->rxBuffStart;
+//    }
+//  }
+
+	data = *(this->rxDataStart);
+
+	if ( removeReadByte) {
+		this->rxDataStart++;
+		if ( this->rxDataStart == this->rxBuffEnd) {
+			this->rxDataStart = this->rxBuffStart;
+		}
+		this->rxLength--;
+	}
+
+	return data;
 };
 
 /************************************************************************/
@@ -599,36 +610,52 @@ bool Usart::findFromPM( const char pmData[], bool removeReadByte) {
 /* @param usart                                                         */
 /*          the Usart instance used with the interrupt (USARTn)         */
 /************************************************************************/
-void rxVector( uint8_t udr, Usart usart) {
-  *(usart.rxDataEnd) = udr;
-  usart.rxDataEnd++;
-  if ( usart.rxDataEnd == usart.rxBuffEnd) {
-    usart.rxDataEnd = usart.rxBuffStart;
-  }
-  if ( usart.rxLength == usart.rxMaxLength) {
-    usart.rxLostBytesNr++;
-    if ( ( usart.rxDataStart + 1) == usart.rxBuffEnd) {
-      usart.rxDataStart = usart.rxBuffStart;
-    } else {
-      usart.rxDataStart++;
-    }
-  } else {
-    usart.rxLength++;
-  }
+void rxVector( uint8_t udr, Usart* usart) {
+//  *(usart->rxDataEnd) = udr;
+//  usart->rxDataEnd++;
+//  if ( usart->rxDataEnd == usart->rxBuffEnd) {
+//    usart->rxDataEnd = usart->rxBuffStart;
+//  }
+//  if ( usart->rxLength == usart->rxMaxLength) {
+//    usart->rxLostBytesNr++;
+//    if ( ( usart->rxDataStart + 1) == usart->rxBuffEnd) {
+//      usart->rxDataStart = usart->rxBuffStart;
+//    } else {
+//      usart->rxDataStart++;
+//    }
+//  } else {
+//    usart->rxLength++;
+//  }
+//
+
+	if ( usart->rxLength < usart->rxMaxLength){
+
+		*(usart->rxDataEnd) = udr;
+		usart->rxDataEnd++;
+		if ( usart->rxDataEnd == usart->rxBuffEnd)
+		{
+			usart->rxDataEnd = usart->rxBuffStart;
+		}
+		usart->rxLength++;
+	}
+
+
 }
 
 // define the global USART object(s)
 // used to read/write via USART/Serial
 // and set the USARTn_RX_vect interrupts
 #if defined(HAS_USART) 
-  Usart USART( 0); 
+  Usart USART(0);
+
   ISR( USART_RX_vect) {
-    rxVector( UDR0, USART);
+    rxVector( UDR0, &USART);
   };
+
 #elif defined(HAS_USART0) 
   Usart USART;
   ISR(USART_RX_vect) {
-    rxVector( UDR0, USART);
+    rxVector( UDR0, &USART);
   };
 #endif
 
