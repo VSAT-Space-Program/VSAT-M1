@@ -4,6 +4,8 @@
  *  Created on: 3 de fev de 2019
  *      Author: Eduardo Lacerda Campos
  *
+ * The example source code is:
+ * https://github.com/torvalds/linux/blob/master/drivers/media/i2c/ov7670.c
  */
 
 #include "OV7670.h"
@@ -11,12 +13,19 @@
 
 OV7670::OV7670() {
 	Wire= NULL;
+	Save_Image = NULL;
 }
 
 OV7670::~OV7670() {
 	// TODO Auto-generated destructor stub
 }
 
+/***********************************************************************
+Initialize the OV7670 registers to operate with RGB555 and QVGA
+Input:  TWI object pointer
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
 
 bool OV7670::Initialize(TwoWire* Wire){
 
@@ -26,15 +35,12 @@ bool OV7670::Initialize(TwoWire* Wire){
 	DDRC &= 0xF0;
 	DDRB &= 0xF0;
 
-	//Pull up resistor on the input
-//	PORTC |= 0x0F;
-//	PORTB |= 0x0F;
-
 	//Control Pins, Define pins as Output
 	CONTROL_DDR |= AL422_RCK | AL422_WEN | AL422_RRST | AL422_WRST;
 
 	//Control Pins, Define pins as input
 	CONTROL_DDR &= ~(OV7670_VSYNC);
+
 	//Pull UP resistor
 //	CONTROL_PORT |= OV7670_VSYNC;
 
@@ -49,7 +55,12 @@ bool OV7670::Initialize(TwoWire* Wire){
 
 }
 
-
+/***********************************************************************
+Capture and store on the buffer
+Input: None
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
 bool OV7670::Capture(){
 
 	//TODO - include a timer to avoid dead look
@@ -73,29 +84,38 @@ bool OV7670::Capture(){
 	return true;
 }
 
-bool OV7670::Read_image(){
+
+/***********************************************************************
+Read all image's bytes and send it to the next handle function
+Input: None
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
+bool OV7670::Read_and_Save_Image(){
 
 
 	READ_RESET;
 
 	uint8_t Byte2,Byte1;
 
-	//TODO  - define Size_Image as the image setup
+	//TODO  - define Size_Image in the image setup
 	uint32_t Size_Image =(uint32_t)320*(uint32_t)240;
 
-	//SAVE BMP_HEADER
+	//Save BMP_HEADER
 	for(uint32_t idx=0; idx< sizeof(BMP_HEADER_QVGA);idx++)
 		(*Save_Image)(pgm_read_byte(&(BMP_HEADER_QVGA[idx])));
 
 	for(uint32_t idx=0; idx< Size_Image;idx++){
 
+		//read one pixel
 		Byte1 = Read_one_byte();
 		Byte2 = Read_one_byte();
 
+		//save the pixel
 		(*Save_Image)(Byte1);
 		(*Save_Image)(Byte2);
 
-		//TODO - Salvar no cartão SD
+
 	}
 
 	return true;
@@ -110,26 +130,36 @@ uint8_t OV7670::Read_one_byte() {
 
 	return b;
 }
-
-//Reset All Register Values to the default
+/***********************************************************************
+Reset all register to the default values
+Input: None
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
 bool OV7670::reset() {
 
 	uint8_t ret=Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_RESET);
 
 	if(ret!=0)
-		return false;
+		return false; //fail to reset
 
 	_delay_ms(500);
 
 	//read any register to verify if the CI is working
 	ret = Read_SCCB(OV7670_I2C_ADDR, 0x01);
-	if (ret!= 0x80)
-		return false;
 
-	return true;
+	if (ret!= 0x80)
+		return false; //fail to reset
+
+	return true; //success
 }
 
-
+/***********************************************************************
+Initialize the OV7670 registers to operate with RGB555 and QVGA
+Input: None
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
 bool OV7670::Init_mode() {
 
 	//reset the camera
@@ -160,8 +190,12 @@ bool OV7670::Init_mode() {
 	return true;
 
 }
-
-// -2 (dark) to +2 (bright)
+/***********************************************************************
+ Change the brightness value
+Input: Values from -2 (dark) to +2 (bright)
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
 bool OV7670::brightness(int8_t value) {
 	static const uint8_t values[] = {0xb0, 0x98, 0x00, 0x18, 0x30};
 
@@ -173,7 +207,9 @@ bool OV7670::brightness(int8_t value) {
 
 	return true;
 }
-
+/***********************************************************************
+ Change the Light Mode
+************************************************************************/
 bool OV7670::Light_Mode(LightModeEL value){
 
 	switch (value){
@@ -188,29 +224,47 @@ bool OV7670::Light_Mode(LightModeEL value){
 
 }
 
-struct regval_list Saturation_m2[]={
-		{0x4f, 0x40},
-		{0x50, 0x40},
-		{0x51, 0x00},
-		{0x52, 0x11},
-		{0x53, 0x2f},
-		{0x54, 0x40},
-		{0x58, 0x9e},
-		{EM , EM}
-};
+bool OV7670::Saturation(float value){
 
-bool OV7670::Saturation(int8_t value){
+	//default values
+	int16_t cmatrix[]={ 179, -179, 0, -61, -176, 228 };
 
-	return transfer_regvals(Saturation_m2);
 
+	for(uint8_t idx=0 ; idx< CMATRIX_LEN ; idx++)
+	{
+		cmatrix[idx] = cmatrix[idx] * value;
+	}
+
+	for(uint8_t idx=0 ; idx< CMATRIX_LEN ; idx++)
+	{
+		Send_SCCB(OV7670_I2C_ADDR,REG_CMATRIX_1 + idx ,abs(cmatrix[idx]));
+	}
+
+
+	return true;
 }
 
-/**
- * transfers a regval list via SCCB to camera
+/*************************************************************************
+ * transfers the register values via SCCB to camera
+ * Input:   Value 0 to 255
+ * Output: 	true -> success
+ * 			false -> failure
+ *************************************************************************/
+bool OV7670::Contrast(uint8_t value)
+{
+	if (Send_SCCB(OV7670_I2C_ADDR, REG_CONTRAST, value)!=0)
+		return false;
+
+	return true;
+}
+
+/*************************************************************************
+ * transfers the register values via SCCB to camera
  *
- * true: success
- * false: failure
- */
+ * Output:
+ * 			true -> success
+ * 			false -> failure
+ *************************************************************************/
 bool OV7670::transfer_regvals(struct regval_list *list) {
 	uint8_t ret = 0;
 	uint8_t i = 0;
@@ -261,7 +315,7 @@ uint8_t OV7670::read_reg(uint8_t reg){
 **************************************************************************/
 uint8_t OV7670::Send_SCCB(uint8_t slave_address, uint8_t address, uint8_t data) {
 
-	//To make SCCB compatible with the I2C protocol, the address should be right shifted to compensate the left shift in the I2C protocol
+	//To make SCCB compatible with the I2C protocol, the slave_address must be right shifted
 	Wire->beginTransmission(slave_address>>1);
 	Wire->write(address);
 	Wire->write(data);
@@ -269,19 +323,20 @@ uint8_t OV7670::Send_SCCB(uint8_t slave_address, uint8_t address, uint8_t data) 
 
 }
 
+//TODO - review this function to return the error information
 /*************************************************************************
 * Output   0 .. success
 *          1 .. length to long for buffer
 *          2 .. address send, NACK received
 *          3 .. data send, NACK received
-*          4 .. other twi error (lost bus arbitration, bus error, ..)
+*          4 .. other twi errors (lost bus arbitration, bus error, ..)
 **************************************************************************/
 uint8_t OV7670::Read_SCCB(uint8_t slave_address, uint8_t address) {
 
 	if (Wire==NULL)
 		return 0;
 
-	//To make SCCB compatible with the I2C protocol, the address should be right shifted to compensate the left shift in the I2C protocol
+	//To make SCCB compatible with the I2C protocol, the slave_address must be right shifted
 	Wire->beginTransmission(slave_address>>1);
 	Wire->write(address);
 	Wire->endTransmission(true);
@@ -295,14 +350,31 @@ uint8_t OV7670::Read_SCCB(uint8_t slave_address, uint8_t address) {
 
 	return (uint8_t)ret;
 
-
-
 }
 
-bool OV7670::Test_Petern(){
+/***********************************************************************
+Switch on/off the pattern test
+Input: 	flag: true -> Enable
+			  false -> Disable
 
-	Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_RGB | COM7_QVGA | 0x02);
-	Send_SCCB(OV7670_I2C_ADDR, REG_SCALING_YSC, SCALING_YSC_QVGA | 0x80);
+Output: false -> Failure
+	    true  -> Success
+************************************************************************/
+bool OV7670::Test_Petern(bool flag){
+
+
+	uint8_t COM7_Value =  Read_SCCB(OV7670_I2C_ADDR, REG_COM7);
+	uint8_t SCALING_YSC_Value =  Read_SCCB(OV7670_I2C_ADDR, REG_SCALING_YSC);
+
+	if(flag==true){
+		Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_Value | 0x02);
+		Send_SCCB(OV7670_I2C_ADDR, REG_SCALING_YSC, SCALING_YSC_Value | 0x80);
+	}
+	else
+	{
+		Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_Value & ~(0x02));
+		Send_SCCB(OV7670_I2C_ADDR, REG_SCALING_YSC, SCALING_YSC_Value & ~(0x80));
+	}
 
 	return true;
 
@@ -323,3 +395,54 @@ bool OV7670::init_negative_vsync() {
 uint8_t OV7670::init_default_values() {
 	return transfer_regvals(ov7670_default);
 }
+
+#define SIN_STEP 5
+static const int ov7670_sin_table[] = {
+	   0,	 87,   173,   258,   342,   422,
+	 499,	573,   642,   707,   766,   819,
+	 866,	906,   939,   965,   984,   996,
+	1000
+};
+
+static int ov7670_sine(int theta)
+{
+	int chs = 1;
+	int sine;
+
+	if (theta < 0) {
+		theta = -theta;
+		chs = -1;
+	}
+	if (theta <= 90)
+		sine = ov7670_sin_table[theta/SIN_STEP];
+	else {
+		theta -= 90;
+		sine = 1000 - ov7670_sin_table[theta/SIN_STEP];
+	}
+	return sine*chs;
+}
+
+static int ov7670_cosine(int theta)
+{
+	theta = 90 - theta;
+	if (theta > 180)
+		theta -= 360;
+	else if (theta < -180)
+		theta += 360;
+	return ov7670_sine(theta);
+}
+
+void ov7670_calc_cmatrix(uint16_t matrix[CMATRIX_LEN], int sat, int hue)
+{
+	int i;
+	int16_t cmatrix[CMATRIX_LEN];
+	/*
+	 * Apply the current saturation setting first.
+	 */
+	for (i = 0; i < CMATRIX_LEN; i++)
+		matrix[i] = (cmatrix[i] * sat) >> 7;
+
+
+}
+
+
