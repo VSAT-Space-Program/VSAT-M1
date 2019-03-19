@@ -104,10 +104,11 @@ public:
 	bool Initialize(TwoWire* Wire);
 	bool brightness(int8_t value);
 	bool Capture();
-	bool Read_image();
-	bool Test_Petern();
+	bool Read_and_Save_Image();
+	bool Test_Petern(bool flag);
 	bool Light_Mode(LightModeEL value);
-	bool Saturation(int8_t value);
+	bool Saturation(float value);
+	bool Contrast(uint8_t value);
 
 	void (*Save_Image)(uint8_t b);
 
@@ -116,7 +117,6 @@ public:
 
 private:
 	TwoWire* Wire;
-	uint8_t camera_mode;
 	bool transfer_regvals(struct regval_list *list);
 	uint8_t Send_SCCB(uint8_t slave_address, uint8_t address, uint8_t data);
 	uint8_t Read_SCCB(uint8_t slave_address, uint8_t address);
