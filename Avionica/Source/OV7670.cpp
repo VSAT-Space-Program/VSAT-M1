@@ -212,6 +212,7 @@ bool OV7670::brightness(int8_t value) {
 ************************************************************************/
 bool OV7670::Light_Mode(LightModeEL value){
 
+	//TODO - Include other configurations
 	switch (value){
 	case LightModeEL::Auto:
 		Send_SCCB(OV7670_I2C_ADDR, REG_COM8, 0xe7);
@@ -224,15 +225,27 @@ bool OV7670::Light_Mode(LightModeEL value){
 
 }
 
+/*************************************************************************
+ * transfers the register values via SCCB to camera
+ * Input:   Value -> percent multiplier from 0 to 1.11
+ * Output: 	true  -> success
+ * 			false -> failure
+ *************************************************************************/
 bool OV7670::Saturation(float value){
 
 	//default values
 	int16_t cmatrix[]={ 179, -179, 0, -61, -176, 228 };
 
+	uint8_t signal =0;
 
 	for(uint8_t idx=0 ; idx< CMATRIX_LEN ; idx++)
 	{
 		cmatrix[idx] = cmatrix[idx] * value;
+
+		//TODO - this procedure is not necessary now, but when hue color correction is implemented
+		// this procedure will be necessary
+		if (cmatrix[idx]<0)
+			signal |= (1<<idx);
 	}
 
 	for(uint8_t idx=0 ; idx< CMATRIX_LEN ; idx++)
@@ -240,6 +253,11 @@ bool OV7670::Saturation(float value){
 		Send_SCCB(OV7670_I2C_ADDR,REG_CMATRIX_1 + idx ,abs(cmatrix[idx]));
 	}
 
+	//Read and eliminate the old signal values
+	uint8_t REG_MTXS_Value =  Read_SCCB(OV7670_I2C_ADDR, REG_MTXS) & 0xC0;
+
+	//Send the new signal of the cmatrix items
+	Send_SCCB(OV7670_I2C_ADDR,REG_MTXS, REG_MTXS_Value  | signal);
 
 	return true;
 }
@@ -381,7 +399,6 @@ bool OV7670::Test_Petern(bool flag){
 }
 
 
-
 bool OV7670::init_negative_vsync() {
 
 	uint8_t ret=Send_SCCB(OV7670_I2C_ADDR, REG_COM10, COM10_VS_NEG);
@@ -395,54 +412,4 @@ bool OV7670::init_negative_vsync() {
 uint8_t OV7670::init_default_values() {
 	return transfer_regvals(ov7670_default);
 }
-
-#define SIN_STEP 5
-static const int ov7670_sin_table[] = {
-	   0,	 87,   173,   258,   342,   422,
-	 499,	573,   642,   707,   766,   819,
-	 866,	906,   939,   965,   984,   996,
-	1000
-};
-
-static int ov7670_sine(int theta)
-{
-	int chs = 1;
-	int sine;
-
-	if (theta < 0) {
-		theta = -theta;
-		chs = -1;
-	}
-	if (theta <= 90)
-		sine = ov7670_sin_table[theta/SIN_STEP];
-	else {
-		theta -= 90;
-		sine = 1000 - ov7670_sin_table[theta/SIN_STEP];
-	}
-	return sine*chs;
-}
-
-static int ov7670_cosine(int theta)
-{
-	theta = 90 - theta;
-	if (theta > 180)
-		theta -= 360;
-	else if (theta < -180)
-		theta += 360;
-	return ov7670_sine(theta);
-}
-
-void ov7670_calc_cmatrix(uint16_t matrix[CMATRIX_LEN], int sat, int hue)
-{
-	int i;
-	int16_t cmatrix[CMATRIX_LEN];
-	/*
-	 * Apply the current saturation setting first.
-	 */
-	for (i = 0; i < CMATRIX_LEN; i++)
-		matrix[i] = (cmatrix[i] * sat) >> 7;
-
-
-}
-
 
