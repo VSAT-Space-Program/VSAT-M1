@@ -11,6 +11,11 @@ Para iniciar a utilização deste projeto:
 
 ## Links importantes
 * [Make clean code and be happy!](https://medium.com/coding-skills/clean-code-101-meaningful-names-and-functions-bf450456d90c) -  Um código limpo facilita o trabalho em equipe.
+* [Monografia 1](https://wiki.sj.ifsc.edu.br/wiki/images/a/a2/TCC_Leonan_Da_Silva_Saraiva.pdf)
+* [Monografia 2](https://wiki.sj.ifsc.edu.br/wiki/index.php/Utiliza%C3%A7%C3%A3o_da_tecnologia_LoRaWAN_para_o_monitoramento_de_dados_ambientais)
+* [Monografia 3](https://wiki.sj.ifsc.edu.br/wiki/index.php/Sensoriamento_Remoto_das_Condi%C3%A7%C3%B5es_Ambientais_de_Colmeias_de_Abelhas_utilizando_RF)
+* [Monografia 4](https://wiki.sj.ifsc.edu.br/wiki/index.php/Utiliza%C3%A7%C3%A3o_da_tecnologia_LoRaWAN_para_o_monitoramento_de_dados_ambientais)
+* [Monografia 5](https://wiki.sj.ifsc.edu.br/wiki/images/a/ad/TCC290_Giulio_Cruz_de_Oliveira.pdf)
 
 # MISSÃO 1
 
@@ -20,7 +25,7 @@ Para iniciar a utilização deste projeto:
 
 ### Descrição do ambiente técnico
 
-O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO.
+O sistema é composto por QUAIS FERRAMENTAS e SEU OBJETIVO...
 
 ### Levantamento de requisitos  
 Os requisitos foram levantados pela equipe VSAT. Este são requisitos especificamente ligados as funcionalidades da missão.
@@ -29,7 +34,7 @@ Os requisitos foram levantados pela equipe VSAT. Este são requisitos especifica
 Respeitando a proposta, o sistema deverá atender os seguintes requisitos:
 
 * **RF1** - Possuir sensor de temperatura.
-* **RF2** - Possuir sensor de umidade.
+* **RF2** - Possuir sensor de pressão.
 
 ## Requisitos Não-Funcionais
 
@@ -50,22 +55,15 @@ Para verificar as informações recebidas será realizado o seguinte passo-a-pas
 
 ***Visão do sistema***
 
-***Caso seja criado alguma tela aqui é especificado***
-
 # Implementação técnica
 
-## Diagrama de casos de Uso
-![Diagrama de casos de Uso](/images/Usecase.png)
-
-## Diagrama ER de banco de dados
-Vai ter?
-![Diagrama ER de banco de dados](/images/db_pf.png)
-
 ## Trocas de mensagem
-Descreve toda a telemetria aqui.
-![Diagrama partes do sistema](/images/)
+Poucos agentes em utilização, não gerará diagrama de telemetria. Dados enviados em formato **CSV** em comunicação Half-duplex:
 
-
+    led_state; buzzer_state
+    
+Onde **led_state** indicará o nível lógico que o led será setado e **buzzer_state** indicará o nível lógico que o buzzer será setado.    
+    
 ## Cronograma
 
 ### ETAPA 1 - Documentação

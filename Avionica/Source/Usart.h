@@ -104,7 +104,7 @@ class Usart {
     // friend operation which deals with USARTn_RX_vector(s) interrupts
     // using friend operation allows to access private fields of this class
     friend void rxVector( uint8_t udr, Usart usart);
-  private:
+//  private:
     // Define the ring buffer pointer.
     // Must be volatile because write by interrupts.
     volatile uint8_t* rxBuffStart;

@@ -2,7 +2,7 @@
  * SX1276.h
  *
  *  Created on: 20 de jan de 2019
- *      Author: Eduardo Lacerda Campos
+ *      Authors: Eduardo Lacerda Campos e Saulo Aislan da Silva Eleutério
  *
  *  Driver para acessar a comunicação LoRa por meio do CI SX1276
  *
@@ -26,11 +26,14 @@
 #define M0 PD2
 #define M1 PD3
 #define AUX PD4
+#define AUX_IS_HIGH (PIND & (1<<AUX))
 
 //Operating Frequency
 //0x00 to 0x1F corresponding to 900 to 931 MHz
 
 #define CHAN 0x0F  //Default 915 MHz
+
+#define MAX_TX_SIZE 58
 
 //Air data rate
 #define AIR_BPS_300 	0x00
@@ -53,6 +56,19 @@
 //UART parity bit
 #define P_8N1 0x00
 
+//MACROS
+#define WHILE_COUNT(__X)	\
+	{	\
+		uint16_t __Counter=0;	\
+		while(__X)	\
+		{	\
+			_delay_ms(1);	\
+			__Counter++;	\
+			if (__Counter>=1000)	\
+				return false;	\
+		}	\
+	}
+
 class SX1276 {
 public:
 	SX1276(uint16_t Address);
@@ -69,5 +85,20 @@ private:
 	uint16_t Address;
 	bool ReadBytes(uint8_t* data, uint8_t Lenght);
 };
+
+/*******************************************************
+* Structures
+*******************************************************/
+
+#pragma pack(push, 1)
+struct CFG_struct {
+  uint8_t HEAD;
+  uint8_t ADDH;
+  uint8_t ADDL;
+  uint8_t SPED;
+  uint8_t CHANNEL;
+  uint8_t OPTION;
+};
+#pragma pack(pop)
 
 #endif /* AVIONICA_SOURCE_SX1276_H_ */
