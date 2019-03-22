@@ -6,7 +6,7 @@
 *      		   João Brito
 */
 	
-#include "DateTime.h"
+
 #include "DS3231.h"
 	
 static uint8_t bcd2bin (uint8_t val) { return val - 6 * (val >> 4); }
