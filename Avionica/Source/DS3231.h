@@ -1,9 +1,10 @@
-	/*
-	* DS3221.h
-	*
-	*  Created on: 22 de fev de 2019
-	*      Author: joaobrito
-	*/
+/*
+* DS3221.h
+*
+*  Created on: 22 de fev de 2019
+*      Author: 	Eduardo Lacera Campos
+*				João Brito
+*/
 	
 #ifndef DS3231_H_
 #define DS3231_H_
