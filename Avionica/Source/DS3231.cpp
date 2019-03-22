@@ -28,9 +28,9 @@ bool DS3231::Initialize(TwoWire* Wire)
 }
 	
 void writeControlByte(uint8_t control, bool which){
-	// Define Control bits
+	//Define Control bits
 	//Write the selected control uint8_t.
-	// which=false -> 0x0e, true -> 0x0f.
+	//which=false -> 0x0e, true -> 0x0f.
 	
 	Wire.beginTransmission(DS3231_ADDRESS);
 	if(which){
@@ -48,11 +48,11 @@ uint8_t readControlByte(bool which) {
 	// first uint8_t (0) is 0x0e, second (1) is 0x0f
 	Wire.beginTransmission(DS3231_ADDRESS);
 	if (which) {
-	// second control uint8_t
+		// second control uint8_t
 		Wire.write(0x0f);
 	}
 	else {
-	// first control uint8_t
+		// first control uint8_t
 		Wire.write(0x0e);
 	}
 	Wire.endTransmission();
@@ -71,20 +71,20 @@ void enableOscillator(bool TF, bool battery, uint8_t frequency){
 	// 2 = 4.096 kHz
 	// 3 = 8.192 kHz (Default if frequency uint8_t is out of range)
 	if (frequency > 3) frequency = 3;
-	// read control uint8_t in, but zero out current state of RS2 and RS1.
+		// read control uint8_t in, but zero out current state of RS2 and RS1.
 		uint8_t temp_buffer = readControlByte(0) & 0xE7;
 	if (battery) {
-	// turn on BBSQW flag
+		// turn on BBSQW flag
 		temp_buffer = temp_buffer | 0x40;
 	} else {
-	// turn off BBSQW flag
+		// turn off BBSQW flag
 		temp_buffer = temp_buffer & 0xBF;
 	}
 	if (TF) {
-	// set ~EOSC to 0 and INTCN to zero.
+		// set ~EOSC to 0 and INTCN to zero.
 		temp_buffer = temp_buffer & 0x7B;
 	} else {
-	// set ~EOSC to 1, leave INTCN as is.
+		// set ~EOSC to 1, leave INTCN as is.
 		temp_buffer = temp_buffer | 0x80;
 	}
 	// shift frequency into bits 3 and 4 and set.
