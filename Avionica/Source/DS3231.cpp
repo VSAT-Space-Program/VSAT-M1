@@ -1,64 +1,67 @@
-	/*
-	* DS3231.cpp
-	*
-	*  Created on: 22 de fev de 2019
-	*      Author: joaobrito
-	*/
+/*
+* DS3231.cpp
+*
+*  Created on: 22 de fev de 2019
+*      Author: Eduardo Lacera Campos
+*      		   João Brito
+*/
 	
-#include <DateTime.h>
-#include <DS3231.h>
+#include "DateTime.h"
+#include "DS3231.h"
 	
 static uint8_t bcd2bin (uint8_t val) { return val - 6 * (val >> 4); }
 static uint8_t bin2bcd (uint8_t val) { return val + 6 * (val / 10); }
 	
 DS3231::DS3231() {
-
 		this->Wire = NULL;
 	}
 	
 DS3231::~DS3231() {
 	
-	}
+}
 	
 bool DS3231::Initialize(TwoWire* Wire)
-	{
+{
 	this->Wire = Wire;
 	
 	return true;
-	}
+}
 	
-void writeControlByte(byte control, bool which){ // Define Control bits
-	//Write the selected control byte.
+void writeControlByte(uint8_t control, bool which){
+	// Define Control bits
+	//Write the selected control uint8_t.
 	// which=false -> 0x0e, true -> 0x0f.
 	
 	Wire.beginTransmission(DS3231_ADDRESS);
 	if(which){
 		Wire.write(0x0f);
-	}else{
+	}
+	else{
 		Wire.write(0x0e);
 	}
 	Wire.write(control);
 	Wire.endTransmission();
-	}
+}
 	
-byte readControlByte(bool which) {
-	// Read selected control byte
-	// first byte (0) is 0x0e, second (1) is 0x0f
+uint8_t readControlByte(bool which) {
+	// Read selected control uint8_t
+	// first uint8_t (0) is 0x0e, second (1) is 0x0f
 	Wire.beginTransmission(DS3231_ADDRESS);
 	if (which) {
-	// second control byte
+	// second control uint8_t
 		Wire.write(0x0f);
-	} else {
-	// first control byte
+	}
+	else {
+	// first control uint8_t
 		Wire.write(0x0e);
 	}
 	Wire.endTransmission();
 	Wire.requestFrom(DS3231_ADDRESS, 1);
 	return Wire.read();
-	}
+}
 	
-	// enable oscillator
-void enableOscillator(bool TF, bool battery, byte frequency){
+// enable oscillator
+void enableOscillator(bool TF, bool battery, uint8_t frequency){
 	// turns oscillator on or off. True is on, false is off.
 	// if battery is true, turns on even for battery-only operation,
 	// otherwise turns off if Vcc is off.
@@ -66,10 +69,10 @@ void enableOscillator(bool TF, bool battery, byte frequency){
 	// 0 = 1 Hz
 	// 1 = 1.024 kHz
 	// 2 = 4.096 kHz
-	// 3 = 8.192 kHz (Default if frequency byte is out of range)
+	// 3 = 8.192 kHz (Default if frequency uint8_t is out of range)
 	if (frequency > 3) frequency = 3;
-	// read control byte in, but zero out current state of RS2 and RS1.
-		byte temp_buffer = readControlByte(0) & 0xE7;
+	// read control uint8_t in, but zero out current state of RS2 and RS1.
+		uint8_t temp_buffer = readControlByte(0) & 0xE7;
 	if (battery) {
 	// turn on BBSQW flag
 		temp_buffer = temp_buffer | 0x40;
@@ -89,32 +92,35 @@ void enableOscillator(bool TF, bool battery, byte frequency){
 	temp_buffer = temp_buffer | frequency;
 	// And write the control bits
 	writeControlByte(temp_buffer, 0);
-	}
-	// Enable 32kHz
+}
+
+// Enable 32kHz
 void DS3231::enable32kHz(bool TF) {
+
 	// turn 32kHz pin on or off
-	byte temp_buffer = readControlByte(1);
+	uint8_t temp_buffer = readControlByte(1);
 	if (TF) {
-	// turn on 32kHz pin
+		// turn on 32kHz pin
 		temp_buffer = temp_buffer | 0x08;
 	} else {
-	// turn off 32kHz pin
+		// turn off 32kHz pin
 		temp_buffer = temp_buffer & 0xF7;
 	}
 	writeControlByte(temp_buffer, 1);
-	}
-	// Oscillator Check
+}
+
+// Oscillator Check
 bool DS3231::oscillatorCheck() {
 	// Returns false if the oscillator has been off for some reason.
 	// If this is the case, the time is probably not correct.
-	byte temp_buffer = readControlByte(1);
+	uint8_t temp_buffer = readControlByte(1);
 	bool result = true;
 	if (temp_buffer & 0x80) {
-	// Oscillator Stop Flag (OSF) is set, so return false.
+		// Oscillator Stop Flag (OSF) is set, so return false.
 		result = false;
 	}
 	return result;
-	}
+}
 	
 bool DS3231::Read(){
 	
@@ -202,10 +208,7 @@ bool DS3231::Adjust_Time(const DateTime& dt) {
 	Wire->endTransmission();
 	
 	return true;
-	//
-	//  uint8_t statreg = read_i2c_register(DS3231_ADDRESS, DS3231_STATUSREG);
-	//  statreg &= ~0x80; // flip OSF bit
-	//  write_i2c_register(DS3231_ADDRESS, DS3231_STATUSREG, statreg);
+
 	}
 	
 	
