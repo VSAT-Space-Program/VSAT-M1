@@ -13,6 +13,7 @@
 #include <avr/io.h>
 #include <util/delay.h>
 #include "OV7670.h"
+#include "MCP23017.h"
 
 #include <Wire.h>
 #include "Usart.h"
@@ -70,21 +71,21 @@ PC6 <--- RESET
 PD0 <--- NEO6M Tx
 PD1 ---> NEO6M Rx
 PD2 ---> AL422_OE ( When OE is pulled high, data output is disabled and the output pins remain at high impedance status)
-PD3 ---> OV7670_PWRD (1: Power down mode)
-PD4 <--- OV7670_VSYNC
+PD3 <---
+PD4 <---
 PD5 <---
-PD6 <---
-PD7 <---
+PD6 ---> OV7670_PWRD (1: Power down mode 0:Normal)
+PD7 <--- OV7670_VSYNC
 
-PCF8574
-P0 <--- AL422_DO0
-P1 <--- AL422_DO1
-P2 <--- AL422_DO2
-P3 <--- AL422_DO3
-P4 <--- AL422_DO4
-P5 <--- AL422_DO5
-P6 <--- AL422_DO6
-P7 <--- AL422_DO7
+MCP23017
+GPIOB0 <--- AL422_DO0
+GPIOB1 <--- AL422_DO1
+GPIOB2 <--- AL422_DO2
+GPIOB3 <--- AL422_DO3
+GPIOB4 <--- AL422_DO4
+GPIOB5 <--- AL422_DO5
+GPIOB6 <--- AL422_DO6
+GPIOB7 <--- AL422_DO7
 
 *******************************************
 PinOut para testes temporários
@@ -114,12 +115,11 @@ PD2 ---> AL422_RRST (Write Reset Input: initializes the read address to 0)
 PD3 ---> AL422_WRST (Write Reset Input: initializes the write address to 0)
 PD4 ---> AL422_WEN  (Write Enable Input)
 PD5 ---> AL422_RCK  (Read Clock Input)
-PD6 <---
+PD6 ---> RESET OV7670
 PD7 <--- OV7670_VSYNC
 
 GND = OV7670_PWRD
 GND = AL422_OE ( When OE is pulled high, data output is disabled and the output pins remain at high impedance status)
-VCC = RESET OV7670
 ****************************/
 // I2C used address
 // OV7670   0x21 (0x42 right shifted 1)
@@ -135,21 +135,24 @@ VCC = RESET OV7670
 
 DS3231 rtc;
 OV7670 Can;
+MCP23017 GPIO(0);
 //SX1276 LoRa;
 
 //TODO - Criar uma rotina de tratamento de falhas.
-void Failure(){
+void Failure(uint8_t code){
 
 	for(;;)
 	{
 		PORTB &= ~(1<<PB5);
 		_delay_ms(1000);
-		PINB = (1<<PB5);
-		_delay_ms(200);
-		PINB = (1<<PB5);
-		_delay_ms(200);
-		PINB = (1<<PB5);
-		_delay_ms(200);
+
+		for(uint8_t idx=0 ; idx<code; idx++)
+		{
+			PINB = (1<<PB5);
+			_delay_ms(200);
+			PINB = (1<<PB5);
+			_delay_ms(200);
+		}
 	}
 
 
@@ -159,12 +162,23 @@ void Save(uint8_t b){
 	USART.writeByte(b);
 }
 
+uint8_t Read_GPIO(){
 
+	uint8_t val;
+
+	if (!GPIO.Read_Byte(&val))
+	{
+		Failure(5);
+	}
+
+	return val;
+}
 
 
 void setup() {
 
 
+	_delay_ms(1000);
 	// initialize the digital pin as an output.
 	// Pin 13 has an LED connected on most Arduino boards:
 	DDRB   = (1<<PB5);
@@ -180,25 +194,33 @@ void setup() {
 	Wire.begin();
 	if(rtc.Initialize(&Wire)==false)
 	{
-		Failure();
+		Failure(1);
 	}
 
 //	DateTime rtc_date(2019,1,19,12,03,00);
 //	rtc.Adjust_Time(rtc_date);
 
+	if (!GPIO.Initialize(&Wire))
+	{
+		Failure(2);
+	}
 
 	if (!Can.Initialize(&Wire))
 	{
-		Failure();
+		Failure(3);
 	}
 
-	_delay_ms(100);
+
 	Can.Save_Image = &Save;
+	Can.Read_GPIO = &Read_GPIO;
 
-	Can.Saturation(0);
+	//this value gives a nice result
+	Can.Contrast(0x50);
+
+//	Can.Saturation(1);
+
+	//TODO - That function seems to have a problem with the brightness 0
 //	Can.brightness(0);
-
-//	Can.Test_Petern();
 
 //	USART.write("Can is ready\r\n");
 
@@ -252,7 +274,7 @@ void loop() {
 			break;
 		case '1':
 			Can.Capture();
-			Can.Read_image();
+			Can.Read_and_Save_Image();
 			break;
 		case '2':
 			PORTB |= (1<<PB5);
@@ -267,6 +289,39 @@ void loop() {
 			USART.writeByte(Can.read_reg(reg));
 
 			break;
+		case '5':
+			Can.Hardware_Reset();
+			if (!Can.Initialize(&Wire))
+			{
+				Failure(4);
+			}
+			Can.Save_Image = &Save;
+			Can.Read_GPIO = &Read_GPIO;
+			break;
+		case '6':
+			Can.Test_Petern(true);
+			break;
+		case '7':
+			Can.Test_Petern(false);
+			break;
+		case '8':
+			while(USART.available()<1);
+			reg=USART.read();
+			Can.Contrast(reg);
+			break;
+		case '9':
+			USART.writeByte(Read_GPIO());
+			break;
+		case 'A':
+			while(USART.available()<1);
+			reg=USART.read();
+			if(reg==1)
+				Can.old=true;
+			else
+				Can.old=false;
+			break;
+
+
 
 		default:
 			break;
