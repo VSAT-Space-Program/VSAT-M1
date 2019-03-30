@@ -55,27 +55,37 @@ ADC7 <--- Battery Voltage
 AREF
 PB0 <---
 PB1 <---
-PB2 ---> SPI SS
+PB2 ---> SPI CS
 PB3 ---> SPI MOSI
 PB4 <--- SPI MISO
 PB5 ---> Led + SPI SCK
 PB6 <--- XTAL1
 PB7 <--- XTAL2
-PC0 ---> AL422_WRST (Write Reset Input: initializes the write address to 0)
-PC1 ---> AL422_RCK  (Read Clock Input)
-PC2 ---> AL422_RRST (Write Reset Input: initializes the read address to 0)
-PC3 ---> AL422_WEN  (Write Enable Input)
+PC0 --->
+PC1 --->
+PC2 --->
+PC3 --->
 PC4 <--> Comunicação I2C Data
 PC5 ---> Comunicação I2C CLK
 PC6 <--- RESET
 PD0 <--- NEO6M Tx
 PD1 ---> NEO6M Rx
-PD2 ---> AL422_OE ( When OE is pulled high, data output is disabled and the output pins remain at high impedance status)
-PD3 <---
-PD4 <---
-PD5 <---
-PD6 ---> OV7670_PWRD (1: Power down mode 0:Normal)
+PD2 ---> AL422_RRST (Write Reset Input: initializes the read address to 0)
+PD3 ---> AL422_WRST (Write Reset Input: initializes the write address to 0)
+PD4 ---> AL422_WEN  (Write Enable Input)
+PD5 ---> AL422_RCK  (Read Clock Input)
+PD6 ---> RESET OV7670
 PD7 <--- OV7670_VSYNC
+
+MCP23017
+GPIOA0 ---> OV7670_PWRD (1: Power down mode 0:Normal) (Max voltage 3.0v)
+GPIOA1 ---> AL422_OE ( When OE is pulled high, data output is disabled and the output pins remain at high impedance status)
+GPIOA2 <---
+GPIOA3 <---
+GPIOA4 <---
+GPIOA5 <---
+GPIOA6 <---
+GPIOA7 <---
 
 MCP23017
 GPIOB0 <--- AL422_DO0
@@ -86,6 +96,8 @@ GPIOB4 <--- AL422_DO4
 GPIOB5 <--- AL422_DO5
 GPIOB6 <--- AL422_DO6
 GPIOB7 <--- AL422_DO7
+
+
 
 *******************************************
 PinOut para testes temporários
