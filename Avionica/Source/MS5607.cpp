@@ -1,5 +1,5 @@
 /*
-	* MS5607.h
+	* MS5607.cpp
 		*  Created on: 30 de março de 2019
 	      Author: joaobrito
 	*/
