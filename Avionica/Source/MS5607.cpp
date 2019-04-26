@@ -1,36 +1,26 @@
 /*
-	* MS5607.cpp
-		*  Created on: 30 de março de 2019
-	      Author: joaobrito
-	*/
+  * MS5607.cpp
+    *  Created on: 30 de março de 2019
+        Author: joaobrito
+  */
 
 #include <MS5607.h>
 #include <Wire.h>
 
 MS5607::MS5607()
 {
-    this->Wire = NULL;
-}
-
-MS5607::~MS5607()
-{
 
 }
 
-bool MS5607::begin(void){
+
+uint8_t MS5607::begin(){
   Wire.begin();
   return(readCalibration());
 }
 
-bool MS5607::initialize(TwoWire* Wire)
-{
-    this->Wire = Wire;
-    return true;
-}
-
 uint8_t MS5607::resetDevice(void){
-  Wire->beginTransmission(MS5607_ADDRESS);
-  Wire->write(RESET);
+  Wire.beginTransmission(MS5607_ADDRESS);
+  Wire.write(RESET);
   uint8_t error = Wire.endTransmission();
   if(error == 0){
     delay(4);
@@ -63,64 +53,65 @@ uint8_t MS5607::readCalibration(){
     Serial.println(C6);
     #endif
 
+
     const1 = ((float)C5)*((int)1<<8);
-    // Serial.print("const1 - ");
-    // Serial.println(const1);
+     Serial.print("const1 - ");
+
     const2 = ((float)C6)/(float)((long)1<<23);
-    // Serial.print("const2 - ");
-    // Serial.println(const2,4);
+     Serial.print("const2 - ");
+
     const3 = (((int64_t)C2)*((long)1<<17));
-    // Serial.print("const3 - ");
-    // Serial.println(ToString(const3));
+     Serial.print("const3 - ");
+
     const4 = ((float)C4)/((int)1<<6);
-    // Serial.print("const4 - ");
-    // Serial.println(const4);
+     Serial.print("const4 - ");
+
     const5 = ((float)C1)*((long)1<<16);
-    // Serial.print("const5 - ");
-    // Serial.println(const5);
+     Serial.print("const5 - ");
+
     const6 = ((float)C3)/((int)1<<7);
-    // Serial.print("const6 - ");
-    // Serial.println(const6);
+     Serial.print("const6 - ");
+
     return (1);
   }else{return(0);}
 }
 
-uint8_t MS5607::readUInt_16(uint8_t address, unsigned int &value){
-  unsigned uint8_t data[2];	//4bit
-	data[0] = address;
-	if (readBytes(data,2))
-	{
-		value = (((unsigned int)data[0]*(1<<8))|(unsigned int)data[1]);
-		return(1);
-	}
-	value = 0;
-	return(0);
+int16_t MS5607::readUInt_16(uint8_t address, unsigned int &value){
+  unsigned char data[2]; //4bit
+  data[0] = address;
+  if (readBytes(data,2))
+  {
+    value = (((unsigned int)data[0]*(1<<8))|(unsigned int)data[1]);
+    return(1);
+  }
+  value = 0;
+  return(0);
 }
 
 uint8_t MS5607::readBytes(unsigned char *values, uint8_t length){
-	uint8_t x;
+  uint8_t x;
 
-    Wire->beginTransmission(MS5607_ADDRESS);
-    Wire->write(values[0]);
+    Wire.beginTransmission(MS5607_ADDRESS);
+    Wire.write(values[0]);
 
-	uint8_t error = Wire->endTransmission();
-	if (error == 0)
-	{
-		Wire->requestFrom(MS5607_ADDRESS,length);
-		while(!Wire->available()) ; // wait until bytes are ready
-		for(x=0;x<length;x++)
-		{
-			values[x] = Wire->read();
-		}
-		return(1);
-	}
-	return(0);
+  uint8_t error = Wire.endTransmission();
+  if (error == 0)
+  {
+    Wire.requestFrom(MS5607_ADDRESS,length);
+    while(!Wire.available()) ; // wait until bytes are ready
+    for(x=0;x<length;x++)
+    {
+      values[x] = Wire.read();
+    }
+    return(1);
+  }
+  return(0);
 }
 
 uint8_t MS5607::startConversion(uint8_t CMD){
-  Wire->beginTransmission(MS5607_ADDRESS);
-  Wire->write(CMD);
-  uint8_t error = Wire->endTransmission();
+  Wire.beginTransmission(MS5607_ADDRESS);
+  Wire.write(CMD);
+  uint8_t error = Wire.endTransmission();
   if(error == 0){
     switch (OSR) {
       case 256:
@@ -137,9 +128,9 @@ uint8_t MS5607::startConversion(uint8_t CMD){
 }
 
 uint8_t MS5607::startMeasurment(void){
-  Wire->beginTransmission(MS5607_ADDRESS);
-  Wire->write(R_ADC);
-  uint8_t error = Wire->endTransmission();
+  Wire.beginTransmission(MS5607_ADDRESS);
+  Wire.write(R_ADC);
+  uint8_t error = Wire.endTransmission();
   if(error == 0){
     delay(3);
     return(1);
@@ -168,9 +159,9 @@ uint8_t MS5607::getDigitalValue(void){
 
 uint8_t MS5607::readDigitalValue(unsigned long &value){
   uint8_t x, length = 3;
-  unsigned uint8_t data[3];
-    Wire->requestFrom(MS5607_ADDRESS,length);
-    while(!Wire->available()) ; // wait until bytes are ready
+  unsigned char data[3];
+    Wire.requestFrom(MS5607_ADDRESS,length);
+    while(!Wire.available()) ; // wait until bytes are ready
     for(x=0;x<length;x++)
     {
       data[x] = Wire.read();
@@ -185,10 +176,10 @@ uint8_t MS5607::readDigitalValue(unsigned long &value){
     return TEMP/100 ;
   }
 
-  float MS5607::getPressure(void){
+  double MS5607::getPressure(void){
     #ifdef MS5607_DEBUG
     Serial.print("D2 - ");
-    Serial.println(float(DT));
+
     #endif
     dT = (float)DT - const1;
     #ifdef MS5607_DEBUG
