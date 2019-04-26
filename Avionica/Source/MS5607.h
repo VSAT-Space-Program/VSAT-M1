@@ -4,8 +4,7 @@
 	      Author: joaobrito
 	*/
 
-#ifndef MS5607_H_
-#define MS5607_H_
+#define MS5607_H
 
 #include<Wire.h>
 
@@ -23,9 +22,9 @@
 class MS5607
 {
   public:
-    MS5607(void);
-    bool begin(uint8_t addr);
-    bool initialize(TwoWire* wire);
+    public:
+    MS5607();
+    uint8_t begin();
     double getTemperature(void);
     double getPressure(void);
     uint8_t getDigitalValue(void);
