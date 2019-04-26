@@ -49,12 +49,6 @@ void SPI_SD::init(volatile uint8_t *DDR_SS, volatile uint8_t *DDR_SCK, volatile 
     initialized = true;
 }
 
-//void SPI_SD::Disable(){
-//
-//	SPCR=0;
-//
-//}
-
 void SPI_SD::set_speed()
 {
     SPCR &= ~((1 << SPR1) | (1 << SPR0));
