@@ -8,6 +8,8 @@
 #ifndef BATTERY_H_
 #define BATTERY_H_
 #include "Analog.h"
+#include "stdlib.h"
+#include <inttypes.h>
 
 class BATTERY : public Analog_Digital {
 public:
