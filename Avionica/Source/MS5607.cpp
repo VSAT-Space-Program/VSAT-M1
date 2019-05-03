@@ -1,10 +1,10 @@
 /*
   * MS5607.cpp
-    *  Created on: 30 de março de 2019
+    *  Created on: 30 de marï¿½o de 2019
         Author: joaobrito
   */
 
-#include <MS5607.h>
+#include "MS5607.h"
 #include <Wire.h>
 
 MS5607::MS5607()
@@ -13,17 +13,19 @@ MS5607::MS5607()
 }
 
 
-uint8_t MS5607::begin(){
-  Wire.begin();
-  return(readCalibration());
+uint8_t MS5607::Initialize(TwoWire* Wire){
+
+  this->Wire = Wire;
+  readCalibration();
+  return 1;
 }
 
 uint8_t MS5607::resetDevice(void){
-  Wire.beginTransmission(MS5607_ADDRESS);
-  Wire.write(RESET);
-  uint8_t error = Wire.endTransmission();
+  Wire->beginTransmission(MS5607_ADDRESS);
+  Wire->write(RESET);
+  uint8_t error = Wire->endTransmission();
   if(error == 0){
-    delay(4);
+  _delay_ms(4);
     return(1);
   }else{return(0);}
 }
@@ -55,29 +57,29 @@ uint8_t MS5607::readCalibration(){
 
 
     const1 = ((float)C5)*((int)1<<8);
-     Serial.print("const1 - ");
+//     Serial.print("const1 - ");
 
     const2 = ((float)C6)/(float)((long)1<<23);
-     Serial.print("const2 - ");
+//     Serial.print("const2 - ");
 
     const3 = (((int64_t)C2)*((long)1<<17));
-     Serial.print("const3 - ");
+//     Serial.print("const3 - ");
 
     const4 = ((float)C4)/((int)1<<6);
-     Serial.print("const4 - ");
+//     Serial.print("const4 - ");
 
     const5 = ((float)C1)*((long)1<<16);
-     Serial.print("const5 - ");
+//     Serial.print("const5 - ");
 
     const6 = ((float)C3)/((int)1<<7);
-     Serial.print("const6 - ");
+//     Serial.print("const6 - ");
 
     return (1);
   }else{return(0);}
 }
 
-int16_t MS5607::readUInt_16(uint8_t address, unsigned int &value){
-  unsigned char data[2]; //4bit
+int16_t MS5607::readUInt_16(uint8_t address, uint16_t &value){
+  uint8_t data[2]; //4bit
   data[0] = address;
   if (readBytes(data,2))
   {
@@ -88,20 +90,20 @@ int16_t MS5607::readUInt_16(uint8_t address, unsigned int &value){
   return(0);
 }
 
-uint8_t MS5607::readBytes(unsigned char *values, uint8_t length){
+uint8_t MS5607::readBytes(uint8_t *values, uint8_t length){
   uint8_t x;
 
-    Wire.beginTransmission(MS5607_ADDRESS);
-    Wire.write(values[0]);
+    Wire->beginTransmission(MS5607_ADDRESS);
+    Wire->write(values[0]);
 
-  uint8_t error = Wire.endTransmission();
+  uint8_t error = Wire->endTransmission();
   if (error == 0)
   {
-    Wire.requestFrom(MS5607_ADDRESS,length);
-    while(!Wire.available()) ; // wait until bytes are ready
+    Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
+    while(!Wire->available()) ; // wait until bytes are ready
     for(x=0;x<length;x++)
     {
-      values[x] = Wire.read();
+      values[x] = Wire->read();
     }
     return(1);
   }
@@ -109,16 +111,16 @@ uint8_t MS5607::readBytes(unsigned char *values, uint8_t length){
 }
 
 uint8_t MS5607::startConversion(uint8_t CMD){
-  Wire.beginTransmission(MS5607_ADDRESS);
-  Wire.write(CMD);
-  uint8_t error = Wire.endTransmission();
+  Wire->beginTransmission(MS5607_ADDRESS);
+  Wire->write(CMD);
+  uint8_t error = Wire->endTransmission();
   if(error == 0){
     switch (OSR) {
       case 256:
-        delay(1);
+      _delay_ms(1);
         break;
       case 4096:
-        delay(10);
+      _delay_ms(10);
         break;
       default:
         break;
@@ -128,13 +130,13 @@ uint8_t MS5607::startConversion(uint8_t CMD){
 }
 
 uint8_t MS5607::startMeasurment(void){
-  Wire.beginTransmission(MS5607_ADDRESS);
-  Wire.write(R_ADC);
-  uint8_t error = Wire.endTransmission();
+  Wire->beginTransmission(MS5607_ADDRESS);
+  Wire->write(R_ADC);
+  uint8_t error = Wire->endTransmission();
   if(error == 0){
-    delay(3);
-    return(1);
-  }else{return(0);}
+  _delay_ms(3);
+    return 1;
+  }else{return 0;}
 }
 
 uint8_t MS5607::getDigitalValue(void){
@@ -148,113 +150,117 @@ uint8_t MS5607::getDigitalValue(void){
         if(readDigitalValue(DT));
       }
     }else{return 0;}
-    #ifdef MS5607_DEBUG
-    Serial.print("D1 - ");
-    Serial.println(DP);
-    Serial.print("D2 - ");
-    Serial.println(DT);
-    #endif
-    return 1;
+   #ifdef MS5607_DEBUG
+  Serial.print("D1 - ");
+  Serial.println(DP);
+  Serial.print("D2 - ");
+  Serial.println(DT);
+  #endif
+  return 1;
 }
 
-uint8_t MS5607::readDigitalValue(unsigned long &value){
+uint8_t MS5607::readDigitalValue(uint32_t &value){
   uint8_t x, length = 3;
   unsigned char data[3];
-    Wire.requestFrom(MS5607_ADDRESS,length);
-    while(!Wire.available()) ; // wait until bytes are ready
-    for(x=0;x<length;x++)
-    {
-      data[x] = Wire.read();
-    }
-    value = (unsigned long)data[0]*1<<16|(unsigned long)data[1]*1<<8|(unsigned long)data[2];
-    return(1);
+
+  Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
+
+  while(!Wire->available()) ; // wait until bytes are ready
+
+  for(x=0;x<length;x++)
+  {
+    data[x] = Wire->read();
+  }
+
+  value = (uint32_t)data[0]*1<<16|(uint32_t)data[1]*1<<8|(uint32_t)data[2];
+
+  return(1);
   }
 
   double MS5607::getTemperature(void){
+    // FIRST ORDER TEMPERATURE COMPENSATION.
     dT = (double)DT - const1;
     TEMP = 2000.0 + dT * const2;
-    return TEMP/100 ;
+    // END ORDER TEMPERATURE COMPENSATION.
+
+    // SECOND ORDER TEMPERATURE COMPENSATION.
+    if (TEMP < 2000)
+    {
+      T2 = dT*dT/pow(2,31);
+      OFF2 = 61*(TEMP-2000)*(TEMP-2000)/pow(2,4);
+      SENS2 = 2*(TEMP-2000)*(TEMP-2000);
+    }
+    else if (TEMP < -1500)
+    {
+      OFF2 += 15*(TEMP+1500)*(TEMP+1500);
+      SENS2 += 8*(TEMP+1500)*(TEMP+1500);
+    }//END SECOND ORDER TEMPERATURE COMPENSATION.
+
+    TEMP -= T2;
+    OFF -= OFF2;
+    SENS -= SENS2;
+
+    return TEMP;
+
   }
+
 
   double MS5607::getPressure(void){
-    #ifdef MS5607_DEBUG
-    Serial.print("D2 - ");
+  #ifdef MS5607_DEBUG
+  Serial.print("D2 - ");
 
-    #endif
-    dT = (float)DT - const1;
-    #ifdef MS5607_DEBUG
-    Serial.print("dT - ");
-    Serial.println(dT);
-    #endif
+  #endif
+  dT = (float)DT - const1;
+  #ifdef MS5607_DEBUG
+  Serial.print("dT - ");
+  Serial.println(dT);
+  #endif
 
-    TEMP = 2000.0 + dT * const2;
-    #ifdef MS5607_DEBUG
-    Serial.print("TEMP - ");
-    Serial.println(TEMP/100);
-    #endif
+  TEMP = 2000.0 + dT * const2;
+  #ifdef MS5607_DEBUG
+  Serial.print("TEMP - ");
+  Serial.println(TEMP/100);
+  #endif
 
-    OFF = const3 + dT * const4;
-    #ifdef MS5607_DEBUG
-    Serial.print("OFF - ");
-    Serial.println(ToString(OFF));
-    #endif
+  OFF = const3 + dT * const4;
+  #ifdef MS5607_DEBUG
+  Serial.print("OFF - ");
+  Serial.println(ToString(OFF));
+  #endif
 
-    SENS = const5 + dT * const6;
-    #ifdef MS5607_DEBUG
-    Serial.print("SENS - ");
-    Serial.println(ToString(SENS));
-    #endif
+  SENS = const5 + dT * const6;
+  #ifdef MS5607_DEBUG
+  Serial.print("SENS - ");
+  Serial.println(ToString(SENS));
+  #endif
 
-    float pa = (float)((float)DP/((long)1<<15));
-    #ifdef MS5607_DEBUG
-    Serial.print("PA - ");
-    Serial.println(pa,2);
-    #endif
-    float pb = (float)(SENS/((float)((long)1<<21)));
-    #ifdef MS5607_DEBUG
-    Serial.print("PB - ");
-    Serial.println(pb,2);
-    #endif
-    float pc = pa*pb;
-    #ifdef MS5607_DEBUG
-    Serial.print("PC - ");
-    Serial.println(pc,2);
-    #endif
+  float pa = (float)((float)DP/((long)1<<15));
+  #ifdef MS5607_DEBUG
+  Serial.print("PA - ");
+  Serial.println(pa,2);
+  #endif
+  float pb = (float)(SENS/((float)((long)1<<21)));
+  #ifdef MS5607_DEBUG
+  Serial.print("PB - ");
+  Serial.println(pb,2);
+  #endif
+  float pc = pa*pb;
+  #ifdef MS5607_DEBUG
+  Serial.print("PC - ");
+  Serial.println(pc,2);
+  #endif
 
-    float pd = (float)(OFF/((float)((long)1<<15)));
-    #ifdef MS5607_DEBUG
-    Serial.print("PD - ");
-    Serial.println(pd,2);
-    #endif
-    P = pc - pd;
-    //P = (DP*SENS/((long)(1<<21)) - OFF)/((long)1<<15);
-    #ifdef MS5607_DEBUG
-    Serial.print("P - ");
-    Serial.println(P);
-    #endif
+  float pd = (float)(OFF/((float)((long)1<<15)));
+  #ifdef MS5607_DEBUG
+  Serial.print("PD - ");
+  Serial.println(pd,2);
+  #endif
+  P = pc - pd;
+  //P = (DP*SENS/((long)(1<<21)) - OFF)/((long)1<<15);
+  #ifdef MS5607_DEBUG
+  Serial.print("P - ");
+  Serial.println(P);
+  #endif
 
-    return P/100;
-  }
-
-  String MS5607::ToString(uint64_t x){
-     boolean flag = false; // For preventing string return like this 0000123, with a lot of zeros in front.
-     String str = "";      // Start with an empty string.
-     uint64_t y = 10000000000000000000;
-     int res;
-     if (x == 0)  // if x = 0 and this is not testet, then function return a empty string.
-     {
-           str = "0";
-           return str;  // or return "0";
-     }
-     while (y > 0)
-     {
-            res = (int)(x / y);
-            if (res > 0)  // Wait for res > 0, then start adding to string.
-                flag = true;
-            if (flag == true)
-                str = str + String(res);
-            x = x - (y * (uint64_t)res);  // Subtract res times * y from x
-            y = y / 10;                   // Reducer y with 10
-     }
-     return str;
+  return P/100;
 }

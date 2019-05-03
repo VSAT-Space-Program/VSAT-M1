@@ -32,10 +32,10 @@ class MS5607
   private:
     unsigned int C1,C2,C3,C4,C5,C6;
     unsigned long DP, DT;
-    double dT, TEMP, P;
+    double dT, TEMP, P, T2;
     double const1, const2, const4, const5, const6;
     int64_t const3;
-    int64_t OFF, SENS;
+    int64_t OFF, SENS, OFF2, SENS2;
 
     uint8_t resetDevice(void);
     uint8_t readCalibration();
