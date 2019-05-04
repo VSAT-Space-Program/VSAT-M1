@@ -4,7 +4,7 @@
         Author: joaobrito
   */
 
-#include <MS5607.h>
+#include "MS5607.h"
 #include <Wire.h>
 
 MS5607::MS5607()
@@ -15,9 +15,11 @@ MS5607::MS5607()
 
 uint8_t MS5607::Initialize(TwoWire* Wire){
 
+
   this->Wire = Wire;
   readCalibration();
   return 1;
+
 }
 
 uint8_t MS5607::resetDevice(void){
@@ -120,7 +122,7 @@ uint8_t MS5607::startConversion(uint8_t CMD){
       _delay_ms(1);
         break;
       case 4096:
-      _delay_ms(10);
+    	_delay_ms(10);
         break;
       default:
         break;
@@ -134,13 +136,14 @@ uint8_t MS5607::startMeasurment(void){
   Wire->write(R_ADC);
   uint8_t error = Wire->endTransmission();
   if(error == 0){
-  _delay_ms(3);
+	_delay_ms(3);
     return 1;
   }else{return 0;}
 }
 
 uint8_t MS5607::getDigitalValue(void){
-    if(startConversion(CONV_D1)){
+
+  if(startConversion(CONV_D1)){
       if(startMeasurment()){
         if(readDigitalValue(DP));
       }
@@ -204,7 +207,6 @@ uint8_t MS5607::readDigitalValue(uint32_t &value){
 
   }
 
-
   double MS5607::getPressure(void){
   #ifdef MS5607_DEBUG
   Serial.print("D2 - ");
@@ -263,4 +265,6 @@ uint8_t MS5607::readDigitalValue(uint32_t &value){
   #endif
 
   return P/100;
+
 }
+
