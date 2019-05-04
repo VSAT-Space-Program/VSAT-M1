@@ -1,4 +1,4 @@
-/*
+﻿/*
   * MS5607.cpp
     *  Created on: 30 de mar�o de 2019
         Author: joaobrito
@@ -15,9 +15,11 @@ MS5607::MS5607()
 
 uint8_t MS5607::Initialize(TwoWire* Wire){
 
-	this->Wire = Wire;
-	readCalibration();
-	return 1;
+
+  this->Wire = Wire;
+  readCalibration();
+  return 1;
+
 }
 
 uint8_t MS5607::resetDevice(void){
@@ -25,7 +27,7 @@ uint8_t MS5607::resetDevice(void){
   Wire->write(RESET);
   uint8_t error = Wire->endTransmission();
   if(error == 0){
-	_delay_ms(4);
+  _delay_ms(4);
     return(1);
   }else{return(0);}
 }
@@ -117,7 +119,7 @@ uint8_t MS5607::startConversion(uint8_t CMD){
   if(error == 0){
     switch (OSR) {
       case 256:
-    	_delay_ms(1);
+      _delay_ms(1);
         break;
       case 4096:
     	_delay_ms(10);
@@ -140,107 +142,129 @@ uint8_t MS5607::startMeasurment(void){
 }
 
 uint8_t MS5607::getDigitalValue(void){
-	if(startConversion(CONV_D1)){
-		if(startMeasurment()){
-		if(readDigitalValue(DP));
-		}
-		}else{return 0;}
-	if(startConversion(CONV_D2)){
-	  if(startMeasurment()){
-		if(readDigitalValue(DT));
-	  }
-	}else{return 0;}
-	#ifdef MS5607_DEBUG
-	Serial.print("D1 - ");
-	Serial.println(DP);
-	Serial.print("D2 - ");
-	Serial.println(DT);
-	#endif
-	return 1;
+
+  if(startConversion(CONV_D1)){
+      if(startMeasurment()){
+        if(readDigitalValue(DP));
+      }
+      }else{return 0;}
+    if(startConversion(CONV_D2)){
+      if(startMeasurment()){
+        if(readDigitalValue(DT));
+      }
+    }else{return 0;}
+   #ifdef MS5607_DEBUG
+  Serial.print("D1 - ");
+  Serial.println(DP);
+  Serial.print("D2 - ");
+  Serial.println(DT);
+  #endif
+  return 1;
 }
 
 uint8_t MS5607::readDigitalValue(uint32_t &value){
-	uint8_t x, length = 3;
-	unsigned char data[3];
+  uint8_t x, length = 3;
+  unsigned char data[3];
 
-	Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
+  Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
 
-	while(!Wire->available()) ; // wait until bytes are ready
+  while(!Wire->available()) ; // wait until bytes are ready
 
-	for(x=0;x<length;x++)
-	{
-	  data[x] = Wire->read();
-	}
-
-	value = (uint32_t)data[0]*1<<16|(uint32_t)data[1]*1<<8|(uint32_t)data[2];
-
-	return(1);
-	}
-
-  double MS5607::getTemperature(void){
-    dT = (double)DT - const1;
-    TEMP = 2000.0 + dT * const2;
-    return TEMP/100 ;
+  for(x=0;x<length;x++)
+  {
+    data[x] = Wire->read();
   }
 
+  value = (uint32_t)data[0]*1<<16|(uint32_t)data[1]*1<<8|(uint32_t)data[2];
 
-	double MS5607::getPressure(void){
-	#ifdef MS5607_DEBUG
-	Serial.print("D2 - ");
+  return(1);
+  }
 
-	#endif
-	dT = (float)DT - const1;
-	#ifdef MS5607_DEBUG
-	Serial.print("dT - ");
-	Serial.println(dT);
-	#endif
+  double MS5607::getTemperature(void){
+    // FIRST ORDER TEMPERATURE COMPENSATION.
+    dT = (double)DT - const1;
+    TEMP = 2000.0 + dT * const2;
+    // END ORDER TEMPERATURE COMPENSATION.
 
-	TEMP = 2000.0 + dT * const2;
-	#ifdef MS5607_DEBUG
-	Serial.print("TEMP - ");
-	Serial.println(TEMP/100);
-	#endif
+    // SECOND ORDER TEMPERATURE COMPENSATION.
+    if (TEMP < 2000)
+    {
+      T2 = dT*dT/pow(2,31);
+      OFF2 = 61*(TEMP-2000)*(TEMP-2000)/pow(2,4);
+      SENS2 = 2*(TEMP-2000)*(TEMP-2000);
+    }
+    else if (TEMP < -1500)
+    {
+      OFF2 += 15*(TEMP+1500)*(TEMP+1500);
+      SENS2 += 8*(TEMP+1500)*(TEMP+1500);
+    }//END SECOND ORDER TEMPERATURE COMPENSATION.
 
-	OFF = const3 + dT * const4;
-	#ifdef MS5607_DEBUG
-	Serial.print("OFF - ");
-	Serial.println(ToString(OFF));
-	#endif
+    TEMP -= T2;
+    OFF -= OFF2;
+    SENS -= SENS2;
 
-	SENS = const5 + dT * const6;
-	#ifdef MS5607_DEBUG
-	Serial.print("SENS - ");
-	Serial.println(ToString(SENS));
-	#endif
+    return TEMP;
 
-	float pa = (float)((float)DP/((long)1<<15));
-	#ifdef MS5607_DEBUG
-	Serial.print("PA - ");
-	Serial.println(pa,2);
-	#endif
-	float pb = (float)(SENS/((float)((long)1<<21)));
-	#ifdef MS5607_DEBUG
-	Serial.print("PB - ");
-	Serial.println(pb,2);
-	#endif
-	float pc = pa*pb;
-	#ifdef MS5607_DEBUG
-	Serial.print("PC - ");
-	Serial.println(pc,2);
-	#endif
+  }
 
-	float pd = (float)(OFF/((float)((long)1<<15)));
-	#ifdef MS5607_DEBUG
-	Serial.print("PD - ");
-	Serial.println(pd,2);
-	#endif
-	P = pc - pd;
-	//P = (DP*SENS/((long)(1<<21)) - OFF)/((long)1<<15);
-	#ifdef MS5607_DEBUG
-	Serial.print("P - ");
-	Serial.println(P);
-	#endif
+  double MS5607::getPressure(void){
+  #ifdef MS5607_DEBUG
+  Serial.print("D2 - ");
 
-	return P/100;
+  #endif
+  dT = (float)DT - const1;
+  #ifdef MS5607_DEBUG
+  Serial.print("dT - ");
+  Serial.println(dT);
+  #endif
+
+  TEMP = 2000.0 + dT * const2;
+  #ifdef MS5607_DEBUG
+  Serial.print("TEMP - ");
+  Serial.println(TEMP/100);
+  #endif
+
+  OFF = const3 + dT * const4;
+  #ifdef MS5607_DEBUG
+  Serial.print("OFF - ");
+  Serial.println(ToString(OFF));
+  #endif
+
+  SENS = const5 + dT * const6;
+  #ifdef MS5607_DEBUG
+  Serial.print("SENS - ");
+  Serial.println(ToString(SENS));
+  #endif
+
+  float pa = (float)((float)DP/((long)1<<15));
+  #ifdef MS5607_DEBUG
+  Serial.print("PA - ");
+  Serial.println(pa,2);
+  #endif
+  float pb = (float)(SENS/((float)((long)1<<21)));
+  #ifdef MS5607_DEBUG
+  Serial.print("PB - ");
+  Serial.println(pb,2);
+  #endif
+  float pc = pa*pb;
+  #ifdef MS5607_DEBUG
+  Serial.print("PC - ");
+  Serial.println(pc,2);
+  #endif
+
+  float pd = (float)(OFF/((float)((long)1<<15)));
+  #ifdef MS5607_DEBUG
+  Serial.print("PD - ");
+  Serial.println(pd,2);
+  #endif
+  P = pc - pd;
+  //P = (DP*SENS/((long)(1<<21)) - OFF)/((long)1<<15);
+  #ifdef MS5607_DEBUG
+  Serial.print("P - ");
+  Serial.println(P);
+  #endif
+
+  return P/100;
+
 }
 
