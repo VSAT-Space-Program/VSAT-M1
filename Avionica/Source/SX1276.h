@@ -31,7 +31,7 @@
 //Operating Frequency
 //0x00 to 0x1F corresponding to 900 to 931 MHz
 
-#define CHAN 0x0F  //Default 915 MHz
+#define CHAN 16 //0x0F  //Default 915 MHz
 
 #define MAX_TX_SIZE 58
 

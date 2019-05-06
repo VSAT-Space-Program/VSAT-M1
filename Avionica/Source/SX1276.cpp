@@ -11,7 +11,7 @@
 static void Normal() {PORTD &= ~ ((1<<M0) | (1<<M1));}
 static void WakeUp() {PORTD &= ~(1<<M0);  PORTD |= (1<<M1);}
 static void PowerSaving() {PORTD |= (1<<M0); PORTD &= ~(1<<M1);}
-static void Sleep() {PORTD |= (1<<M0) | (1<<M1);}
+static void Sleep() {PORTD |= ((1<<M0) | (1<<M1));}
 
 /************************************************************************
 * @param
@@ -51,7 +51,9 @@ bool SX1276::Initialize(Usart* Serial){
 	//Attach the serial port
 	this->Serial = Serial;
 
-	DDRD |= (1<<M0) | (1<<M1); //Set M0 and M1 port as output
+	//TODO - the serial speed must be 9600 during the configuration
+
+	DDRD |= ((1<<M0) | (1<<M1)); //Set M0 and M1 port as output
 
 	/*
 	 * When the module is powered on, AUX outputs low level immediately, conducts hardware self-check and sets the operating mode on
@@ -66,7 +68,10 @@ bool SX1276::Initialize(Usart* Serial){
 	//Put the device in sleep mode to configure it.
 	Sleep();
 
+	_delay_ms(10);
+
 	uint8_t msg[6];
+
 	//Initial configuration message
 	msg[0]= 0xC0;
 	msg[1]= uint8_t(Address>>8); //ADDH
@@ -78,15 +83,15 @@ bool SX1276::Initialize(Usart* Serial){
 	//Send the configuration to the LoRa Module
 	this->Serial->writeBytes(msg, 6);
 
-	//Wait the message to be sent
-	_delay_us(1000);
+	_delay_ms(20);
 
 	//Ask the module to send configuration
 	uint8_t command[3] = {0xc1,0xc1,0xc1};
+	Serial->clear();
 	this->Serial->writeBytes(command, 3);
 
 	//read the module configuration
-	uint8_t output[6];
+	uint8_t output[6]={0,0,0,0,0,0};
 	if (!ReadBytes(output,6))
 		return false;
 
@@ -97,7 +102,7 @@ bool SX1276::Initialize(Usart* Serial){
 	//Wake up the module
 	Normal();
 
-	_delay_ms(1000);
+	_delay_ms(10);
 
 	if(!WaitAUX_H())
 		return false;
@@ -148,7 +153,7 @@ bool SX1276::ReadBytes(uint8_t* data, uint8_t Lenght){
 		_delay_ms(1);
 		//to avoid infinite loop, the "Counter" was introduced.
 		cnt++;
-		if (cnt>=1000)// considering the _delay_ms, this counter will wait 1s
+		if (cnt>=3000)// considering the _delay_ms, this counter will wait 3s
 		  return false; //fail to Serial available
 	}
 
