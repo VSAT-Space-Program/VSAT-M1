@@ -1,14 +1,18 @@
-	/*
-	* MS5607.h
-		*  Created on: 30 de marco de 2019
-	      Author: joaobrito
-	*/
+  /*
+  * MS5607.h
+    *  Created on: 30 de marco de 2019
+        Author: joaobrito
+  */
 
 #define MS5607_H
 
-#include<Wire.h>
+#include <Arduino.h>
+#include <Wire.h>
+#include <util/delay.h>
+#include <math.h>
 
-#define MS5607_ADDRESS 0X76
+
+#define MS5607_ADDRESS 0X77
 #define PROM_READ  0xA0
 #define RESET  0x1E
 #define OSR 4096
@@ -24,13 +28,16 @@ class MS5607
   public:
     public:
     MS5607();
-    uint8_t begin();
+    uint8_t Initialize(TwoWire* Wire);
     double getTemperature(void);
     double getPressure(void);
     uint8_t getDigitalValue(void);
 
   private:
-    uint16_t C[6];
+    TwoWire* Wire;
+
+	double const1, const2, const4, const5, const6;
+	int64_t const3;
     unsigned int C1,C2,C3,C4,C5,C6;
     unsigned long DP, DT;
     double dT, TEMP, P, T2;
@@ -42,7 +49,7 @@ class MS5607
     uint8_t readBytes(unsigned char *values, uint8_t length);
     uint8_t startConversion(uint8_t CMD);
     uint8_t startMeasurment(void);
-    uint8_t readDigitalValue(unsigned long &value);
+    uint8_t readDigitalValue(uint32_t &value);
     String ToString(uint64_t x);
 
 };
