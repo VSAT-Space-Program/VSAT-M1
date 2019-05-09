@@ -21,8 +21,11 @@ extern unsigned int __bss_end;
 extern unsigned int __heap_start;
 extern void *__brkval;
 
-void* operator new( size_t size);
-void operator delete( void* ptr);
+void * operator new(size_t size);
+void * operator new[](size_t size);
+void operator delete(void * ptr);
+void operator delete[](void * ptr);
+
 uint16_t getFreeMCUMemory();
 char* getPMData( const char pmD[], size_t length = 0);
 
