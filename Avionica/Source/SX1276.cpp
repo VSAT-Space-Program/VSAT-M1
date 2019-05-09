@@ -17,9 +17,10 @@ static void Sleep() {PORTD |= ((1<<M0) | (1<<M1));}
 * @param
 * Address -> Module Address
 ************************************************************************/
-SX1276::SX1276(uint16_t Address) {
+SX1276::SX1276() {
 
-	this->Address = Address;
+	this->Address = 0;
+	this->Channel = 0;
 	Serial = NULL;
 
 }
@@ -46,10 +47,12 @@ bool WaitAUX_H(){
 
 }
 
-bool SX1276::Initialize(Usart* Serial){
+bool SX1276::Initialize(Usart* Serial,uint16_t Address, uint8_t Channel){
 
 	//Attach the serial port
 	this->Serial = Serial;
+	this->Address=Address;
+	this->Channel = Channel;
 
 	//TODO - the serial speed must be 9600 during the configuration
 
@@ -77,8 +80,8 @@ bool SX1276::Initialize(Usart* Serial){
 	msg[1]= uint8_t(Address>>8); //ADDH
 	msg[2]= uint8_t(Address);  //ADDL
 	msg[3]= AIR_BPS_2400 | USART_BPS_9600 |P_8N1;
-	msg[4]= CHAN;
-	msg[5]= 0x44;
+	msg[4]= Channel;
+	msg[5]= FIXED_MODE|PULL_UP_MODE|WAKE_UP_TIME_1250MS|TURN_FEC|POWER_30DB;
 
 	//Send the configuration to the LoRa Module
 	this->Serial->writeBytes(msg, 6);
@@ -116,8 +119,9 @@ bool SX1276::Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Leng
 	if (Serial == NULL)
 		return false;
 
-	Serial->write(Adrress);
-	Serial->write(Channel);
+	Serial->writeByte(Adrress>>8);
+	Serial->writeByte(Adrress);
+	Serial->writeByte(Channel);
 	Serial->writeBytes(data,Lenght);
 
 	return true;

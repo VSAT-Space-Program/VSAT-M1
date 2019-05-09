@@ -31,8 +31,6 @@
 //Operating Frequency
 //0x00 to 0x1F corresponding to 900 to 931 MHz
 
-#define CHAN 16 //0x0F  //Default 915 MHz
-
 #define MAX_TX_SIZE 58
 
 //Air data rate
@@ -53,6 +51,13 @@
 #define USART_BPS_57600  0x30
 #define USART_BPS_115200 0x38
 
+#define FIXED_MODE (1<<7)
+#define PULL_UP_MODE (1<<6)
+#define WAKE_UP_TIME_1250MS (00100000)
+#define TURN_FEC (1<<2)
+#define POWER_30DB 0u
+
+
 //UART parity bit
 #define P_8N1 0x00
 
@@ -71,18 +76,19 @@
 
 class SX1276 {
 public:
-	SX1276(uint16_t Address);
+	SX1276();
 	virtual ~SX1276();
 	bool Send(uint16_t Adrress, uint8_t Channel, uint8_t* data, uint8_t Lenght);
 	bool Received(uint8_t* data, uint8_t* Lenght);
 	bool Default_Setup(void);
 
-
-	bool Initialize(Usart* Serial);
+	//Channel = 0x0F  -> Default 915 MHz
+	bool Initialize(Usart* Serial,uint16_t Address, uint8_t Channel=0x0F);
 
 private:
 	Usart* Serial;
 	uint16_t Address;
+	uint8_t Channel;
 	bool ReadBytes(uint8_t* data, uint8_t Lenght);
 };
 
