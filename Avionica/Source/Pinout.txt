@@ -1,12 +1,12 @@
 /***************************
-Pinout - Arduino 1
+Pinout - Arduino 1 Communication
 ADC6
 ADC7
 AREF
-PB0 ---> Enable Sensors
-PB1 ---> Enable Arduino 2
-PB2 ---> Enable Camera
-PB3
+PB0 <--- Enable Arduino 
+PB1 ---> 
+PB2 ---> 
+PB3 ---> Enable TX Lora
 PB4
 PB5 ---> Led
 PB6 <--- XTAL1
@@ -59,8 +59,8 @@ PD7 <--- OV7670_VSYNC
 MCP23017
 GPIOA0 ---> POWER_CAN (1: Power down 0: Run)
 GPIOA1 ---> AL422_OE ( When OE is pulled high, data output is disabled and the output pins remain at high impedance status)
-GPIOA2 <---
-GPIOA3 <---
+GPIOA2 ---> Enable Camera
+GPIOA3 ---> Enable SDCARD
 GPIOA4 <---
 GPIOA5 <---
 GPIOA6 <---
