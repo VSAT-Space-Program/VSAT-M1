@@ -17,7 +17,7 @@
 /* Create a Usart object                                                */
 /************************************************************************/
 Usart::Usart() {
-  this->portNo = portNo;
+  this->portNo = 0;
 
   this->udr = &UDR0;
   this->ucsra = &UCSR0A;
@@ -46,6 +46,16 @@ Usart::Usart() {
   this->setStopBit( UsartStopBitEL::ONE);
   // frame (data) length = 8 bits
   this->setFrameLength( UsartFrameLengthEL::EIGHT_BITS);
+
+  this->rxBuffStart = NULL;
+  this->rxDataStart = 0;
+  this->rxBuffEnd = NULL;
+  this->rxDataEnd = 0;
+  this->rxMaxLength = 0;
+  this->rxDataTStart = NULL;
+  this->baud=0;
+  this->rxLength=0;
+
 };
 
 /************************************************************************/
@@ -207,7 +217,10 @@ UsartStopBitEL Usart::getStopBit() {
 /* @return the number of bytes available in the RX buffer (0 if empty)  */
 /************************************************************************/
 uint16_t Usart::available() {
-  return this->rxLength;
+	cli();
+	uint16_t out = this->rxLength;
+	sei();
+  return out;
 };
 
 /************************************************************************/
@@ -270,6 +283,7 @@ void Usart::begin( const uint32_t baud, uint16_t rxBuffMaxLen, UsartModeEL mode)
   uint16_t bRate = 0;
   uint8_t bMode = 0;
   // initialize the buffer
+  this->rxMaxLength = rxBuffMaxLen;
   this->rxBuffStart = (uint8_t*)malloc( this->rxMaxLength);
   this->rxBuffEnd = this->rxBuffStart + this->rxMaxLength;
   this->rxDataStart = this->rxBuffStart;
@@ -277,7 +291,7 @@ void Usart::begin( const uint32_t baud, uint16_t rxBuffMaxLen, UsartModeEL mode)
   this->rxDataEnd = this->rxBuffStart;
   this->rxLength = 0;
   this->rxLostBytesNr = 0;
-  this->rxMaxLength = rxBuffMaxLen;
+
   // store baud rate
   this->baud = baud;
   // compute baud rate value for UBRR register
@@ -333,25 +347,12 @@ void Usart::begin( const uint32_t baud, uint16_t rxBuffMaxLen, UsartModeEL mode)
 /* @return the next byte from the buffer                                */
 /************************************************************************/
 uint8_t Usart::read( bool removeReadByte) {
-  uint8_t data = 0;
-  // return 0 if the buffer is empty
-  if ( this->rxLength == 0) {
-    return 0;
-  }
-//  if ( removeReadByte) {
-//    data = *(this->rxDataStart);
-//    this->rxDataStart++;
-//    if ( this->rxDataStart == this->rxBuffEnd) {
-//      this->rxDataStart = this->rxBuffStart;
-//    }
-//    this->rxLength--;
-//  } else {
-//    data = *(this->rxDataTStart);
-//    this->rxDataTStart++;
-//    if ( this->rxDataTStart == this->rxBuffEnd) {
-//      this->rxDataTStart = this->rxBuffStart;
-//    }
-//  }
+	uint8_t data = 0;
+
+	// return 0 if the buffer is empty
+	if ( available() == 0) {
+	return 0;
+	}
 
 	data = *(this->rxDataStart);
 
@@ -360,7 +361,9 @@ uint8_t Usart::read( bool removeReadByte) {
 		if ( this->rxDataStart == this->rxBuffEnd) {
 			this->rxDataStart = this->rxBuffStart;
 		}
+		cli();
 		this->rxLength--;
+		sei();
 	}
 
 	return data;
@@ -506,7 +509,7 @@ void Usart::write(double number, uint8_t digits)
   // Extract the integer part of the number and print it
   unsigned long int_part = (unsigned long)number;
   double remainder = number - (double)int_part;
-  write(int_part);
+  write((uint32_t)int_part);
 
   // Print the decimal point, but only if there are digits beyond
   if (digits > 0) {
@@ -638,7 +641,8 @@ void rxVector( uint8_t udr, Usart* usart) {
 		}
 		usart->rxLength++;
 	}
-
+	else
+		usart->rxLostBytesNr++;
 
 }
 
@@ -658,4 +662,6 @@ void rxVector( uint8_t udr, Usart* usart) {
     rxVector( UDR0, &USART);
   };
 #endif
+
+
 
