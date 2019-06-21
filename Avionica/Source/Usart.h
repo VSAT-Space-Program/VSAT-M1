@@ -100,6 +100,7 @@ class Usart {
     uint16_t getMaxLength();
     uint16_t getRxLostBytesNr();
     uint8_t read( bool removeReadByte = true);
+    void readBytes(uint8_t * buff, uint16_t len);
     uint16_t available();
     bool clear();
     bool find( const char* data, bool removeReadByte = true);
