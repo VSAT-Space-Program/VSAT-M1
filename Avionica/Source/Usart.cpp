@@ -371,6 +371,32 @@ uint8_t Usart::read( bool removeReadByte) {
 
 /************************************************************************/
 /* @method                                                              */
+/* read a set of unsigned bytes value from USART input.                 */
+/* @param data                                                          */
+/*          the pointer referencing the set of bytes		            */
+/* @param dataLen                                                       */
+/*          the length (number of bytes) of the data to be read			 */
+/************************************************************************/
+
+void Usart::readBytes(uint8_t *buff, uint16_t len){
+
+	for(;len>0;len--){
+		*buff++ = *(this->rxDataStart);
+
+		this->rxDataStart++;
+		if ( this->rxDataStart == this->rxBuffEnd) {
+			this->rxDataStart = this->rxBuffStart;
+		}
+		cli();
+		this->rxLength--;
+		sei();
+	}
+
+
+}
+
+/************************************************************************/
+/* @method                                                              */
 /* Write a new byte in the UDRn register, for being transmitted         */
 /* @param ub                                                            */
 /*          the unsigned byte to write                                  */
