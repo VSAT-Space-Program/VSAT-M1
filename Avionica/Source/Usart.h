@@ -5,9 +5,12 @@
  * @version 1.0
  * @created 27.01.2015 17:37:21
  * @author: Mircea Diaconescu
+ *
+ * -std=gnu++11
  */ 
 
 #include "Util.h"
+#include <inttypes.h>
 #include <avr/interrupt.h>
 #include <avr/io.h>
 #include <avr/pgmspace.h>
@@ -97,6 +100,7 @@ class Usart {
     uint16_t getMaxLength();
     uint16_t getRxLostBytesNr();
     uint8_t read( bool removeReadByte = true);
+    void readBytes(uint8_t * buff, uint16_t len);
     uint16_t available();
     bool clear();
     bool find( const char* data, bool removeReadByte = true);
@@ -119,7 +123,7 @@ class Usart {
     // it was not read and the buffer received more data
     // that it can store without overriding existing data.
     // Must be volatile because write by interrupts.
-    volatile uint16_t rxLostBytesNr;
+    volatile uint32_t rxLostBytesNr;
     // maximum receive buffer length
     uint16_t rxMaxLength;
     // communication baud rate in bits per second (e.g., 115200bps = 115.2kbps)
