@@ -4,8 +4,6 @@
  *  Created on: 3 de fev de 2019
  *      Author: Eduardo Lacerda Campos
  *
- * The example source code is:
- * https://github.com/torvalds/linux/blob/master/drivers/media/i2c/ov7670.c
  */
 
 #include "OV7670.h"
@@ -14,6 +12,7 @@
 OV7670::OV7670() {
 	Wire= NULL;
 	Save_Image = NULL;
+	old=true;
 }
 
 OV7670::~OV7670() {
@@ -24,7 +23,7 @@ OV7670::~OV7670() {
 Initialize the OV7670 registers to operate with RGB555 and QVGA
 Input:  TWI object pointer
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 
 bool OV7670::Initialize(TwoWire* Wire){
@@ -32,11 +31,10 @@ bool OV7670::Initialize(TwoWire* Wire){
 	this->Wire = Wire;
 
 	//Data pins as input
-	DDRC &= 0xF0;
-	DDRB &= 0xF0;
+	//Using the MCP23017
 
 	//Control Pins, Define pins as Output
-	CONTROL_DDR |= AL422_RCK | AL422_WEN | AL422_RRST | AL422_WRST;
+	CONTROL_DDR |= AL422_RCK | AL422_WEN | AL422_RRST | AL422_WRST | OV7670_RESET;
 
 	//Control Pins, Define pins as input
 	CONTROL_DDR &= ~(OV7670_VSYNC);
@@ -45,10 +43,14 @@ bool OV7670::Initialize(TwoWire* Wire){
 //	CONTROL_PORT |= OV7670_VSYNC;
 
 	//Set the initial value of the output pins
-	CONTROL_PORT |= AL422_RRST | AL422_WRST;
+	CONTROL_PORT |= AL422_RRST | AL422_WRST | OV7670_RESET;
 	CONTROL_PORT &= ~(AL422_WEN);
 
-	Init_mode();
+	//wait for the camera finish its startup
+	_delay_ms(500);
+
+	if(!Init_mode())
+		return false;
 
 	return true;
 
@@ -59,7 +61,7 @@ bool OV7670::Initialize(TwoWire* Wire){
 Capture and store on the buffer
 Input: None
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::Capture(){
 
@@ -79,6 +81,7 @@ bool OV7670::Capture(){
 
 	//Disable the write operation on the FIFO
 	WRITE_DISABLE;
+	//Reset the FIFO
 	WRITE_RESET;
 
 	return true;
@@ -89,7 +92,7 @@ bool OV7670::Capture(){
 Read all image's bytes and send it to the next handle function
 Input: None
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::Read_and_Save_Image(){
 
@@ -99,12 +102,14 @@ bool OV7670::Read_and_Save_Image(){
 	uint8_t Byte2,Byte1;
 
 	//TODO  - define Size_Image in the image setup
-	uint32_t Size_Image =(uint32_t)320*(uint32_t)240;
+	uint32_t Size_Image =320UL * 240UL;
 
 	//Save BMP_HEADER
 	for(uint32_t idx=0; idx< sizeof(BMP_HEADER_QVGA);idx++)
 		(*Save_Image)(pgm_read_byte(&(BMP_HEADER_QVGA[idx])));
 
+
+	//http://www.arducam.com/rgb565-format-issues/
 	for(uint32_t idx=0; idx< Size_Image;idx++){
 
 		//read one pixel
@@ -112,8 +117,8 @@ bool OV7670::Read_and_Save_Image(){
 		Byte2 = Read_one_byte();
 
 		//save the pixel
-		(*Save_Image)(Byte1);
 		(*Save_Image)(Byte2);
+		(*Save_Image)(Byte1);
 
 
 	}
@@ -125,7 +130,14 @@ uint8_t OV7670::Read_one_byte() {
 	uint8_t b;
 
 	READ_CLOCK_HIGH;
-	b = ((0x0F & PINB) | (PINC<<4));
+	if(old==true)
+	{
+		b = ((0x0F & PINB) | (0xF0 & (PINC<<4)));
+	}
+	else
+	{
+		b = (*Read_GPIO)();
+	}
 	READ_CLOCK_LOW;
 
 	return b;
@@ -134,7 +146,7 @@ uint8_t OV7670::Read_one_byte() {
 Reset all register to the default values
 Input: None
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::reset() {
 
@@ -158,18 +170,23 @@ bool OV7670::reset() {
 Initialize the OV7670 registers to operate with RGB555 and QVGA
 Input: None
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::Init_mode() {
+
 
 	//reset the camera
 	if (!reset())
 		return false;
 
-//	Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_RGB | COM7_QQVGA);
-//	transfer_regvals(ov7670_fmt_rgb565);
-//	transfer_regvals(ov7670_qqvga);
-//	transfer_regvals(ov7670_default_old);
+	uint16_t MID =  (Read_SCCB(OV7670_I2C_ADDR,REG_MIDH))<<8;
+	MID |=  (Read_SCCB(OV7670_I2C_ADDR,REG_MIDL));
+
+
+	if (MID != 0x7FA2)
+		//Can not find the Ov7670
+		return false;
+
 
 
 	transfer_regvals(ov7670_default);
@@ -177,12 +194,6 @@ bool OV7670::Init_mode() {
 	transfer_regvals(ov7670_fmt_rgb565);
 
 	Send_SCCB(OV7670_I2C_ADDR, REG_MVFP, MVFP_MIRROR);
-
-	Send_SCCB(OV7670_I2C_ADDR, REG_CONTRAST, 0x90);
-
-//	transfer_regvals(ov7670_default);
-//	transfer_regvals(ov7670_QVGA_RGB565);
-
 
 	//the VSYNC is connected to the FIFO write reset. This reset occur when the level is low
 	init_negative_vsync();
@@ -194,7 +205,7 @@ bool OV7670::Init_mode() {
  Change the brightness value
 Input: Values from -2 (dark) to +2 (bright)
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::brightness(int8_t value) {
 	static const uint8_t values[] = {0xb0, 0x98, 0x00, 0x18, 0x30};
@@ -224,6 +235,31 @@ bool OV7670::Light_Mode(LightModeEL value){
 	return true;
 
 }
+
+/*************************************************************************
+ * Enable o Disable the night mode
+ * Input:   Flag -> True -> enable
+ * 					False -> Disable
+ * Output: 	true  -> success
+ * 			false -> failure
+ *************************************************************************/
+bool OV7670::Night_Mode(bool flag){
+
+
+	uint16_t Val =  Read_SCCB(OV7670_I2C_ADDR,REG_COM11);
+
+	if(flag==true)
+		Val |= COM11_NIGHT | COM11_NIGHT_FR8;
+	else
+		Val &= ~(COM11_NIGHT | COM11_NIGHT_FR8);
+
+
+	Send_SCCB(OV7670_I2C_ADDR,REG_COM11,Val);
+
+	return true;
+
+}
+
 
 /*************************************************************************
  * transfers the register values via SCCB to camera
@@ -376,7 +412,7 @@ Input: 	flag: true -> Enable
 			  false -> Disable
 
 Output: false -> Failure
-	    true  -> Success
+		true  -> Success
 ************************************************************************/
 bool OV7670::Test_Petern(bool flag){
 
@@ -393,6 +429,8 @@ bool OV7670::Test_Petern(bool flag){
 		Send_SCCB(OV7670_I2C_ADDR, REG_COM7, COM7_Value & ~(0x02));
 		Send_SCCB(OV7670_I2C_ADDR, REG_SCALING_YSC, SCALING_YSC_Value & ~(0x80));
 	}
+
+
 
 	return true;
 
@@ -411,5 +449,21 @@ bool OV7670::init_negative_vsync() {
 
 uint8_t OV7670::init_default_values() {
 	return transfer_regvals(ov7670_default);
+}
+
+/***********************************************************************
+Reset the hardware by physical wire
+Input: None
+Output: false -> Failure
+		true  -> Success
+************************************************************************/
+bool OV7670::Hardware_Reset(){
+
+	CONTROL_PORT &= ~OV7670_RESET;
+	_delay_ms(1000);
+	CONTROL_PORT |= OV7670_RESET;
+
+	return true;
+
 }
 
