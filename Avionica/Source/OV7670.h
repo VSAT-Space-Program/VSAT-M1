@@ -80,6 +80,17 @@
 //Macros
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
+#define WHILE_COUNT_US(__X,__TIME)	\
+	{	\
+		uint32_t __Counter=0;	\
+		while(__X)	\
+		{	\
+			_delay_us(1);	\
+			__Counter++;	\
+			if (__Counter>=__TIME)	\
+				return false;	\
+		}	\
+	}
 
 //BMP Hearder for image with size=640x480 RGB=565
 //const uint8_t BMP_HEADER_VGA[] PROGMEM=
@@ -131,7 +142,7 @@ private:
 	bool reset();
 	bool Init_mode();
 	bool init_negative_vsync();
-	uint8_t init_default_values();
+	//uint8_t init_default_values();
 	uint8_t Read_one_byte();
 
 };
