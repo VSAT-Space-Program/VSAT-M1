@@ -159,10 +159,12 @@
 #define REG_CMATRIX_SIGN            ( 0x58 )
 
 #define REG_BRIGHT                  ( 0x55 )        // Brightness
-#define REG_CONTRAST                 ( 0x56 )        // Contrast control
+#define REG_CONTRAST                ( 0x56 )        // Contrast control
 #define REG_GFIX                    ( 0x69 )        // Fix gain control
 #define REG_GGAIN                   ( 0x6a )        // G channel AWB gain
 #define REG_DBLV                   	( 0x6b )        // PLL control
+#define DBLV_PLL_X1						(0x00)
+#define DBLV_PLL_X4						(0x40)
 #define REG_REG76                   ( 0x76 )        // OV's name
 #define R76_BLKPCOR                   ( 0x80 )    //   Black pixel correction enable
 #define R76_WHTPCOR                   ( 0x40 )    //   White pixel correction enable
@@ -237,7 +239,7 @@ struct regval_list
     uint8_t       value;
 };
 
-static struct regval_list ov7670_fmt_rgb565[] = {
+const struct regval_list ov7670_fmt_rgb565[] PROGMEM= {
 	{REG_RGB444, 0 },
 	{REG_COM15, COM15_R00FF | COM15_RGB565 },
 
@@ -258,18 +260,19 @@ static struct regval_list ov7670_fmt_rgb565[] = {
 	{REG_CMATRIX_5, 0xb0},
 	{REG_CMATRIX_6, 0xe4},
 
-	{REG_COM13, COM13_GAMMA|COM13_UVSAT},
+	{REG_COM13, COM13_GAMMA|COM13_UVSAT },
 
 	{ EM, EM }, { EM, EM }
 };
 
-static struct regval_list ov7670_fmt_QVGA[] = {
+//Some registers have a reserved value which must be 1.
+const struct regval_list ov7670_fmt_QVGA[] PROGMEM = {
 	{ REG_COM7 , COM7_RGB | COM7_QVGA}, // RGB format
-	{ REG_DBLV , 0x0A }, //Default +  PLL = Input clock x0
+	{ REG_DBLV , 0x0A | DBLV_PLL_X4 }, //Default |  PLL = Input clock x1
 	{ REG_COM10, 0x20}, //PCLK does not toggle on HBLANK.
-	{ REG_CLKRC, 0x00 | 0x80 }, // F = XCLK *PLL / (2 * (CLKRC+1))
+	{ REG_CLKRC, 0x80  | 0x01  }, // Default | CLKRC [F = XCLK *PLL / (2 * (CLKRC+1))]
 
-	{ REG_COM11, 0x0A}, //Exposure timing can be less than limit of banding filter  when light is too strong
+	{ REG_COM11,  COM11_50HZ | COM11_EXP}, //Exposure timing can be less than limit of banding filter  when light is too strong
 	{ REG_HSTART, HSTART_QVGA},
 	{ REG_HSTOP, HSTOP_QVGA},
 	{ REG_HREF, HREF_QVGA},
@@ -288,7 +291,7 @@ static struct regval_list ov7670_fmt_QVGA[] = {
 
 
 
-static struct regval_list ov7670_default[] =
+const struct regval_list ov7670_default[] PROGMEM =
 {
 
 //	{ REG_CLKRC, 0x1 },	/* OV: clock scale (30 fps) */
@@ -366,6 +369,7 @@ static struct regval_list ov7670_default[] =
     { 0x59, 0x88 },         { 0x5a, 0x88 },
     { 0x5b, 0x44 },         { 0x5c, 0x67 },
     { 0x5d, 0x49 },         { 0x5e, 0x0e },
+	//AWB Control
     { 0x6c, 0x0a },         { 0x6d, 0x55 },
     { 0x6e, 0x11 },         { 0x6f, 0x9f },     // "9e for advance AWB"
     { 0x6a, 0x40 },         { REG_BLUE, 0x40 },
