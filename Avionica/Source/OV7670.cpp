@@ -67,17 +67,17 @@ bool OV7670::Capture(){
 
 	//TODO - include a timer to avoid dead look
 	//VSYNC signal was inverted, thus the falling of the signal means the frame's beginning
-	while(OV7670_VSYNC_IS_HIGH != 0);
+	WHILE_COUNT_US(OV7670_VSYNC_IS_HIGH != 0,100000);
 
 	//Reset the FIFO
 	WRITE_RESET;
 	WRITE_ENABLE;
 
 	//if the MCU is faster then OV7670
-	while(OV7670_VSYNC_IS_HIGH == 0);
+	WHILE_COUNT_US(OV7670_VSYNC_IS_HIGH == 0,10000);
 
 	//wait the capture process has finished
-	while(OV7670_VSYNC_IS_HIGH !=0);
+	WHILE_COUNT_US(OV7670_VSYNC_IS_HIGH !=0,100000);
 
 	//Disable the write operation on the FIFO
 	WRITE_DISABLE;
@@ -188,10 +188,23 @@ bool OV7670::Init_mode() {
 		return false;
 
 
+	struct regval_list *msg;
 
-	transfer_regvals(ov7670_default);
-	transfer_regvals(ov7670_fmt_QVGA);
-	transfer_regvals(ov7670_fmt_rgb565);
+	msg = new struct regval_list[sizeof(ov7670_default)];
+	memcpy_P(msg, &ov7670_default[0], sizeof(ov7670_default));
+	transfer_regvals(msg);;
+	delete msg;
+
+	msg = new struct regval_list[sizeof(ov7670_fmt_QVGA)];
+	memcpy_P(msg, &ov7670_fmt_QVGA[0], sizeof(ov7670_fmt_QVGA));
+	transfer_regvals(msg);
+	delete msg;
+
+	msg = new struct regval_list[sizeof(ov7670_fmt_rgb565)];
+	memcpy_P(msg, &ov7670_fmt_rgb565[0], sizeof(ov7670_fmt_rgb565));
+	transfer_regvals(msg);
+	delete msg;
+
 
 	Send_SCCB(OV7670_I2C_ADDR, REG_MVFP, MVFP_MIRROR);
 
@@ -447,9 +460,9 @@ bool OV7670::init_negative_vsync() {
 	return true;
 }
 
-uint8_t OV7670::init_default_values() {
-	return transfer_regvals(ov7670_default);
-}
+//uint8_t OV7670::init_default_values() {
+//	return transfer_regvals(ov7670_default);
+//}
 
 /***********************************************************************
 Reset the hardware by physical wire
