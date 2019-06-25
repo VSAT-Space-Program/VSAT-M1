@@ -2,7 +2,7 @@
  * NEO6M.h
  *
  *  Created on: 20 de jan de 2019
- *      Author: Eduardo Lacerda Campos
+ *      Author: educampos
  *      https://www.u-blox.com/en/product/ubx-m8030-series#tab-document-resources
  */
 
@@ -128,19 +128,26 @@ public:
 	NEO6M();
 	virtual ~NEO6M();
 
-	void Initialize(Usart* Serial);
-	bool Poll();
+	bool Initialize(Usart* Serial);
 	bool Status_Read();
 	bool ECEF_Read();
 	bool NED_VEL_Read();
-	STATUS_GPS Status;
-	ECEF_GSP ECEF;
-	NED_VEL_GPS Ned_V;
+	bool is_position_valid();
+	int32_t	ECEF_X;
+	int32_t	ECEF_Y;
+	int32_t	ECEF_Z;
+	int32_t	NED_Vel_N;
+	int32_t	NED_Vel_E;
+	int32_t	NED_Vel_D;
+	uint8_t	flags;	//Navigation Status Flags
+
+
+
 private:
 	Usart* Serial;
 	bool Verify_Checksun(uint8_t *msg, uint8_t len);
 	bool UBX_Polling(uint8_t* UBX_msg , void* structure_data, uint8_t payload_length);
-	void UBX_Send(uint8_t *msg, uint8_t len);
+	bool UBX_Send(uint8_t *msg, uint8_t len , bool ack=false);
 
 };
 
