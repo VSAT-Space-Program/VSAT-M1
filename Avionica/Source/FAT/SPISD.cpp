@@ -32,8 +32,8 @@ bool SPI_SD::initialized = false;
 void SPI_SD::init(volatile uint8_t *DDR_SS, volatile uint8_t *DDR_SCK, volatile uint8_t *DDR_MOSI, volatile uint8_t *DDR_MISO,
                uint8_t PIN_SS, uint8_t PIN_SCK, uint8_t PIN_MOSI, uint8_t PIN_MISO, volatile uint8_t *PORT_SS)
 {
-    if(initialized)
-        return;
+//    if(initialized)
+//        return;
 
     *DDR_SS |= (1 << PIN_SS); // Sets high hardware CS even if not used.
     *PORT_SS |= (1 << PIN_SS);
@@ -41,6 +41,8 @@ void SPI_SD::init(volatile uint8_t *DDR_SS, volatile uint8_t *DDR_SCK, volatile 
     *DDR_SCK |= (1 << PIN_SCK);
     *DDR_MOSI |= (1 << PIN_MOSI);
 
+    SPCR=0;
+    _delay_us(10);
     // Enable SPI, Master, clock rate f_osc/128
     SPCR |= (1 << SPE) | (1 << MSTR) | (1 << SPR1) | (1 << SPR0);
     // clear double speed
@@ -51,14 +53,27 @@ void SPI_SD::init(volatile uint8_t *DDR_SS, volatile uint8_t *DDR_SCK, volatile 
 
 void SPI_SD::set_speed()
 {
+	//fsc/2
+//    SPCR &= ~((1 << SPR1) | (1 << SPR0));
+//    SPSR |= (1 << SPI2X);
+
+	//fsc/4
     SPCR &= ~((1 << SPR1) | (1 << SPR0));
-    SPSR |= (1 << SPI2X);
+    SPSR &= ~(1 << SPI2X);
+
+    //fsc/16
+
+    SPCR &= ~(1 << SPR1);
+    SPCR |=  (1 << SPR0);
+    SPSR &= ~(1 << SPI2X);
 }
 
-void SPI_SD::write(uint8_t data)
+bool SPI_SD::write(uint8_t data)
 {
     SPDR = data;
-    loop_until_bit_is_set(SPSR, SPIF);
+    WHILE_COUNT_US(bit_is_clear(SPSR, SPIF),1000);
+    //loop_until_bit_is_set(SPSR, SPIF);
+    return true;
 }
 
 uint8_t SPI_SD::read()
