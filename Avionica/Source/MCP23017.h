@@ -9,6 +9,8 @@
 #define AVIONICA_SOURCE_MCP23017_H_
 
 #include <Wire.h>
+#include "stdlib.h"
+#include <inttypes.h>
 
 #define ADDRESS_MASK 0x20
 
@@ -57,10 +59,16 @@ public:
 	MCP23017(uint8_t Addr);
 	virtual ~MCP23017();
 	bool Initialize(TwoWire* Wire);
-	bool Read_Byte(uint8_t *Value);
+	bool Read_Byte(uint8_t *Value, uint8_t Port);
+	bool Write_Byte(uint8_t Value, uint8_t Port);
+	bool Set_Port_Direction(uint8_t Value,uint8_t Port);
+	bool Read_Reg(uint8_t *Value, uint8_t Reg);
+	bool Set_bit(uint8_t bit, uint8_t Port);
+	bool Clear_bit(uint8_t bit, uint8_t Port);
 private:
 	TwoWire* Wire;
 	uint8_t Address;
+	uint8_t Last_Port;
 };
 
 #endif /* AVIONICA_SOURCE_MCP23017_H_ */

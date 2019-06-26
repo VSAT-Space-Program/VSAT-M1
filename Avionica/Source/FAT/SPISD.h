@@ -29,13 +29,26 @@
 #define _SPI_H_
 
 #include <avr/io.h>
+#include <util/delay.h>
+
+#define WHILE_COUNT_US(__X,__TIME)	\
+	{	\
+		uint32_t __Counter=0;	\
+		while(__X)	\
+		{	\
+			_delay_us(1);	\
+			__Counter++;	\
+			if (__Counter>=__TIME)	\
+				return false;	\
+		}	\
+	}
 
 class SPI_SD {
 public:
 	SPI_SD();
     static void init(volatile uint8_t *DDR_SS, volatile uint8_t *DDR_SCK, volatile uint8_t *DDR_MOSI, volatile uint8_t *DDR_MISO,
                      uint8_t PIN_SS, uint8_t PIN_SCK, uint8_t PIN_MOSI, uint8_t PIN_MISO, volatile uint8_t *PORT_SS);
-    static void write(uint8_t data);
+    static bool write(uint8_t data);
     static uint8_t read();
     static void set_speed();
 

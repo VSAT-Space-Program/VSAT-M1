@@ -8,6 +8,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include <inttypes.h>
 
 // ADC Auto Trigger Source Selections
 #define Free_Running_mode 0b00000000
