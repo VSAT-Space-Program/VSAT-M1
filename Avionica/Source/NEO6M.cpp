@@ -24,30 +24,31 @@ bool NEO6M::Initialize(Usart* Serial){
 
 	this->Serial = Serial;
 
+	bool Status=true;
+
 	uint8_t buffer[20];
 	memcpy_P(buffer, &setRate[0], sizeof(setRate));
-	UBX_Send(buffer,sizeof(setRate));
+	Status &= UBX_Send(buffer,sizeof(setRate));
 
 	memcpy_P(buffer, &setGSV[0], sizeof(setGSV));
-	UBX_Send(buffer,sizeof(setGSV));
+	Status &= UBX_Send(buffer,sizeof(setGSV));
 
 	memcpy_P(buffer, &setGLL[0], sizeof(setGLL));
-	UBX_Send(buffer,sizeof(setGLL));
+	Status &= UBX_Send(buffer,sizeof(setGLL));
 
 	memcpy_P(buffer, &setGSA[0], sizeof(setGSA));
-	UBX_Send(buffer,sizeof(setGSA));
+	Status &= UBX_Send(buffer,sizeof(setGSA));
 
 	memcpy_P(buffer, &setGGA[0], sizeof(setGGA));
-	UBX_Send(buffer,sizeof(setGGA));
+	Status &= UBX_Send(buffer,sizeof(setGGA));
 
 	memcpy_P(buffer, &setRMC[0], sizeof(setRMC));
-	UBX_Send(buffer,sizeof(setRMC));
+	Status &= UBX_Send(buffer,sizeof(setRMC));
 
 	memcpy_P(buffer, &setVTG[0], sizeof(setVTG));
-	if(!UBX_Send(buffer,sizeof(setVTG),true))
-		return false;
+	Status &= UBX_Send(buffer,sizeof(setVTG),true);
 
-	return true;
+	return Status;
 
 }
 
