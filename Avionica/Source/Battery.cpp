@@ -18,14 +18,20 @@ BATTERY::~BATTERY() {
 
 double BATTERY::Read_Voltage(){
 
-	//r_gnd -> resistor connected to the ground
-	//r_vcc -> resistor connected to the vcc
+	//r_gnd -> resistor connected between knot 1 and the ground
+	//r_vcc -> resistor connected between knot 1 and the Battery VCC
 	//r_total = r_gnd+r_vcc
 	//Cons = r_total / r_gnd
 
-//	float r_total =19.69;
-//	float r_gnd =9.78;
+	//The resistors value must be defined where the maximum battery voltage
+	// renders to 3.3V
+	#define r_total 19.69  	//k ohm
+	#define r_gnd 9.78 		//k ohm
 
-	//to reduce the amount of math during the calculation, the constant resistor values was used
-	return (Read_Once(7)*(19.69/9.78)*5.03)/1024.0;
+	uint16_t Value= Read_Once(7);
+
+	double current = (Value*3.3/1024.0)/r_gnd;
+
+	Battery_Voltage = current*r_total;
+	return Battery_Voltage;
 }
