@@ -16,6 +16,7 @@ public:
 	BATTERY();
 	virtual ~BATTERY();
 	double Read_Voltage();
+	double Battery_Voltage;
 };
 
 #endif /* BATTERY_H_ */
