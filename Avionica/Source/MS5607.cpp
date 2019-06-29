@@ -205,63 +205,33 @@ uint8_t MS5607::readDigitalValue(uint32_t &value){
   }
 
 
-	double MS5607::getPressure(void){
-	#ifdef MS5607_DEBUG
-	Serial.print("D2 - ");
+  double MS5607::getPressure(void){
 
-	#endif
-	dT = (float)DT - const1;
-	#ifdef MS5607_DEBUG
-	Serial.print("dT - ");
-	Serial.println(dT);
-	#endif
+    OFF = const3 + dT * const4;
+    SENS = const5 + dT * const6;
 
-	TEMP = 2000.0 + dT * const2;
-	#ifdef MS5607_DEBUG
-	Serial.print("TEMP - ");
-	Serial.println(TEMP/100);
-	#endif
+      if (TEMP >= 2000.0) //First Order Compensation.
+      {
+          OFF2 = 0;
+          SENS2 = 0;
+      }
+      if (TEMP < 2000.0) //Second Order Compensation.
+      {
+          OFF2 = 61*((TEMP-2000)*(TEMP-2000))/pow(2,4);
+          SENS2 = 2*((TEMP-2000)*(TEMP-2000));
 
-	OFF = const3 + dT * const4;
-	#ifdef MS5607_DEBUG
-	Serial.print("OFF - ");
-	Serial.println(ToString(OFF));
-	#endif
+      }
+      if (TEMP < -1500.0) //Third Order Compensation.
+      {
+          OFF2 += 15*((TEMP+1500)*(TEMP+1500));
+          SENS2 += 8*((TEMP+1500)*(TEMP+1500));
+      }
 
-	SENS = const5 + dT * const6;
-	#ifdef MS5607_DEBUG
-	Serial.print("SENS - ");
-	Serial.println(ToString(SENS));
-	#endif
+        //Calculate Pressure.
+        OFF-= OFF2;
+        SENS -= SENS2;
 
-	float pa = (float)((float)DP/((long)1<<15));
-	#ifdef MS5607_DEBUG
-	Serial.print("PA - ");
-	Serial.println(pa,2);
-	#endif
-	float pb = (float)(SENS/((float)((long)1<<21)));
-	#ifdef MS5607_DEBUG
-	Serial.print("PB - ");
-	Serial.println(pb,2);
-	#endif
-	float pc = pa*pb;
-	#ifdef MS5607_DEBUG
-	Serial.print("PC - ");
-	Serial.println(pc,2);
-	#endif
+        P = (((DP*SENS)/pow(2,21)-OFF)/pow(2,15));
 
-	float pd = (float)(OFF/((float)((long)1<<15)));
-	#ifdef MS5607_DEBUG
-	Serial.print("PD - ");
-	Serial.println(pd,2);
-	#endif
-	P = pc - pd;
-	//P = (DP*SENS/((long)(1<<21)) - OFF)/((long)1<<15);
-	#ifdef MS5607_DEBUG
-	Serial.print("P - ");
-	Serial.println(P);
-	#endif
-
-	return P/100;
-}
-
+    return P/100;
+  }
