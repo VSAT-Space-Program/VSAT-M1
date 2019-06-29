@@ -140,22 +140,43 @@ uint8_t MS5607::startMeasurment(void){
 }
 
 uint8_t MS5607::getDigitalValue(void){
-	if(startConversion(CONV_D1)){
-		if(startMeasurment()){
-		if(readDigitalValue(DP));
-		}
-		}else{return 0;}
-	if(startConversion(CONV_D2)){
-	  if(startMeasurment()){
-		if(readDigitalValue(DT));
-	  }
-	}else{return 0;}
+
+	if(!startConversion(CONV_D1))
+		return 0;
+
+	if(!startMeasurment())
+		return 0;
+
+	if(!readDigitalValue(DP))
+		return 0;
+
+	if(!startConversion(CONV_D2))
+		return 0;
+
+	if(!startMeasurment())
+		return 0;
+
+	if(!readDigitalValue(DT))
+		return 0;
+
+//	if(startConversion(CONV_D1)){
+//		if(startMeasurment()){
+//		if(readDigitalValue(DP));
+//		}
+//		}else{return 0;}
+//	if(startConversion(CONV_D2)){
+//	  if(startMeasurment()){
+//		if(readDigitalValue(DT));
+//	  }
+//	}else{return 0;}
+
 	#ifdef MS5607_DEBUG
 	Serial.print("D1 - ");
 	Serial.println(DP);
 	Serial.print("D2 - ");
 	Serial.println(DT);
 	#endif
+
 	return 1;
 }
 
