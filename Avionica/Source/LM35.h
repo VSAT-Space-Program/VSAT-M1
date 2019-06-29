@@ -1,7 +1,8 @@
 /*
     -> LM35.h
     Data -> 20/06/2019
-    Autor -> João Brito
+    Autor -> JoÃ£o Brito
+    Revisor -> Eduardo Campos
 
 */
 
@@ -9,20 +10,20 @@
 #define _LM35_H_
 
 #include <Analog.h>
-#include <Arduino.h>
 
 
 class LM35 : public Analog_Digital{
 	public:
-	    LM35(const int pin);
-	    virtual ~LM35();
+		LM35(uint8_t pin, uint8_t GND);
+		virtual ~LM35();
 
 		float getC();     //  Temperatura em Celsius
-        float getF(); //   Temperatura em Fahrenheit
 
 
-  private:
-    int pin_LM35
+	private:
+		uint8_t pin_LM35;
+		uint8_t GND_LM35;
+
 };
 
 #endif

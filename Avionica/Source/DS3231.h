@@ -10,6 +10,8 @@
 #define DS3231_H_
 
 #include <Wire.h>
+#include "stdlib.h"
+#include <inttypes.h>
 
 #include "DateTime.h"
 

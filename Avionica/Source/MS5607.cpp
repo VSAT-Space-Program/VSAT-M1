@@ -1,12 +1,11 @@
 /*
   * MS5607.cpp
-    *  Created on: 30 de marco de 2019
+    *  Created on: 30 de mar�o de 2019
         Author: joaobrito
   */
 
 #include "MS5607.h"
 #include <Wire.h>
-
 
 MS5607::MS5607()
 {
@@ -16,9 +15,9 @@ MS5607::MS5607()
 
 uint8_t MS5607::Initialize(TwoWire* Wire){
 
-  this->Wire = Wire;
-  readCalibration();
-  return 1;
+	this->Wire = Wire;
+	readCalibration();
+	return 1;
 }
 
 uint8_t MS5607::resetDevice(void){
@@ -26,7 +25,7 @@ uint8_t MS5607::resetDevice(void){
   Wire->write(RESET);
   uint8_t error = Wire->endTransmission();
   if(error == 0){
-  _delay_ms(4);
+	_delay_ms(4);
     return(1);
   }else{return(0);}
 }
@@ -56,23 +55,24 @@ uint8_t MS5607::readCalibration(){
     Serial.println(C6);
     #endif
 
+
     const1 = ((float)C5)*((int)1<<8);
-   //     Serial.print("const1 - ");
+//     Serial.print("const1 - ");
 
     const2 = ((float)C6)/(float)((long)1<<23);
-   //     Serial.print("const2 - ");
+//     Serial.print("const2 - ");
 
     const3 = (((int64_t)C2)*((long)1<<17));
-   //     Serial.print("const3 - ");
+//     Serial.print("const3 - ");
 
     const4 = ((float)C4)/((int)1<<6);
-   //     Serial.print("const4 - ");
+//     Serial.print("const4 - ");
 
     const5 = ((float)C1)*((long)1<<16);
-   //     Serial.print("const5 - ");
+//     Serial.print("const5 - ");
 
     const6 = ((float)C3)/((int)1<<7);
-   //     Serial.print("const6 - ");
+//     Serial.print("const6 - ");
 
     return (1);
   }else{return(0);}
@@ -117,10 +117,10 @@ uint8_t MS5607::startConversion(uint8_t CMD){
   if(error == 0){
     switch (OSR) {
       case 256:
-      _delay_ms(1);
+    	_delay_ms(1);
         break;
       case 4096:
-      _delay_ms(10);
+    	_delay_ms(10);
         break;
       default:
         break;
@@ -134,64 +134,74 @@ uint8_t MS5607::startMeasurment(void){
   Wire->write(R_ADC);
   uint8_t error = Wire->endTransmission();
   if(error == 0){
-  _delay_ms(3);
+	_delay_ms(3);
     return 1;
   }else{return 0;}
 }
 
 uint8_t MS5607::getDigitalValue(void){
-    if(startConversion(CONV_D1)){
-      if(startMeasurment()){
-        if(readDigitalValue(DP));
-      }
-      }else{return 0;}
-    if(startConversion(CONV_D2)){
-      if(startMeasurment()){
-        if(readDigitalValue(DT));
-      }
-    }else{return 0;}
-   #ifdef MS5607_DEBUG
-  Serial.print("D1 - ");
-  Serial.println(DP);
-  Serial.print("D2 - ");
-  Serial.println(DT);
-  #endif
-  return 1;
+
+	if(!startConversion(CONV_D1))
+		return 0;
+
+	if(!startMeasurment())
+		return 0;
+
+	if(!readDigitalValue(DP))
+		return 0;
+
+	if(!startConversion(CONV_D2))
+		return 0;
+
+	if(!startMeasurment())
+		return 0;
+
+	if(!readDigitalValue(DT))
+		return 0;
+
+//	if(startConversion(CONV_D1)){
+//		if(startMeasurment()){
+//		if(readDigitalValue(DP));
+//		}
+//		}else{return 0;}
+//	if(startConversion(CONV_D2)){
+//	  if(startMeasurment()){
+//		if(readDigitalValue(DT));
+//	  }
+//	}else{return 0;}
+
+	#ifdef MS5607_DEBUG
+	Serial.print("D1 - ");
+	Serial.println(DP);
+	Serial.print("D2 - ");
+	Serial.println(DT);
+	#endif
+
+	return 1;
 }
 
 uint8_t MS5607::readDigitalValue(uint32_t &value){
-  uint8_t x, length = 3;
-  unsigned char data[3];
+	uint8_t x, length = 3;
+	unsigned char data[3];
 
-  Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
+	Wire->requestFrom((uint8_t)MS5607_ADDRESS,length);
 
-  while(!Wire->available()) ; // wait until bytes are ready
+	while(!Wire->available()) ; // wait until bytes are ready
 
-  for(x=0;x<length;x++)
-  {
-    data[x] = Wire->read();
-  }
+	for(x=0;x<length;x++)
+	{
+	  data[x] = Wire->read();
+	}
 
-  value = (uint32_t)data[0]*1<<16|(uint32_t)data[1]*1<<8|(uint32_t)data[2];
+	value = (uint32_t)data[0]*1<<16|(uint32_t)data[1]*1<<8|(uint32_t)data[2];
 
-  return(1);
-  }
+	return(1);
+	}
 
   double MS5607::getTemperature(void){
-
-      // Calculate Temperature.
-
-      // First Order Temperature Compensation.
-      dT = (double)DT - const1;
-      TEMP = 2000.0 + dT * const2;
-
-      if (TEMP < 2000.0){
-
-        T2 = dT*dT/pow(2,31); // Second Order Temperature Compensation.
-      }
-      TEMP -= T2;
-
-  return TEMP/100;
+    dT = (double)DT - const1;
+    TEMP = 2000.0 + dT * const2;
+    return TEMP/100 ;
   }
 
 
@@ -225,8 +235,3 @@ uint8_t MS5607::readDigitalValue(uint32_t &value){
 
     return P/100;
   }
-
-
-
-
-

@@ -15,6 +15,7 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <inttypes.h>
 #include <avr/pgmspace.h>
 
 extern unsigned int __bss_end;
