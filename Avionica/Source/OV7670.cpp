@@ -46,7 +46,7 @@ bool OV7670::Initialize(TwoWire* Wire){
 	CONTROL_PORT |= AL422_RRST | AL422_WRST | OV7670_RESET;
 	CONTROL_PORT &= ~(AL422_WEN);
 
-	//wait for the camera finish its startup
+	//wait for the camera to finish its startup
 	_delay_ms(500);
 
 	if(!Init_mode())
