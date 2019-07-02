@@ -63,9 +63,9 @@ void SPI_SD::set_speed()
 
     //fsc/16
 
-    SPCR &= ~(1 << SPR1);
-    SPCR |=  (1 << SPR0);
-    SPSR &= ~(1 << SPI2X);
+//    SPCR &= ~(1 << SPR1);
+//    SPCR |=  (1 << SPR0);
+//    SPSR &= ~(1 << SPI2X);
 }
 
 bool SPI_SD::write(uint8_t data)

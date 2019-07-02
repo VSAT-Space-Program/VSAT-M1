@@ -76,7 +76,8 @@ public:
     bool read_block(uint32_t block, uint8_t *dst);
 
     bool read_data(uint32_t block, uint16_t offset, uint16_t count, uint8_t *dst);
-
+    void deselect();
+    void select();
 
 private:
     volatile uint8_t *PORT_CS;
@@ -90,8 +91,7 @@ private:
     uint32_t block;
     uint8_t partial_block_read;
 
-    void deselect();
-    void select();
+
     uint8_t send_cmd(uint8_t cmd, uint32_t arg);
     void end_read();
     bool wait_busy(uint32_t milliseconds);

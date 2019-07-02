@@ -669,13 +669,11 @@ size_t File::write(const uint8_t *buffer, uint16_t size)
 				fs->set_cache_dirty();
 
 			}
-//			ELC - Removed to improve speed.
-//			ELC - To ensure the data has been written the sync must be used
-//			else // rewrite part of block
-//			{
-//				if(!fs->cache_raw_block(block, FAT::CACHE_FOR_WRITE))
-//					return written; //error
-//			}
+			else // rewrite part of block
+			{
+				if(!fs->cache_raw_block(block, FAT::CACHE_FOR_WRITE))
+					return written; //error
+			}
 
 			uint8_t *dst = fs->get_buffer_data_ptr() + w_offset; // free position on the cache
 			uint8_t *end = dst + n; // end position on the cache

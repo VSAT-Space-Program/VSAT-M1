@@ -237,7 +237,9 @@ bool SDCard::write_block(uint32_t block_no, const uint8_t* src)
 
 bool SDCard::write_data(uint8_t token, const uint8_t* src)
 {
-    SPI_SD::write(token);
+    if(!SPI_SD::write(token))
+    	return false;
+
     for (uint16_t i = 0; i < 512; i++) {
         SPI_SD::write(src[i]);
     }
